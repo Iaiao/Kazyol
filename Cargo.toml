@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "kazyol",
+    "kazyol_lib",
+    "kazyol_plugin_loader"
+]

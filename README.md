@@ -1,5 +1,5 @@
 # Kazyol
-Kazyol is a pluggable event-driven Minecraft server implementation in Rust
+Kazyol is a plugin-extensible event-driven Minecraft server implementation in Rust
 
 # For server owners
 It's not ready for usage yet. If you want to help, you can translate it to your language [not yet],

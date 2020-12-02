@@ -22,10 +22,6 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             println!("Got a custom event");
             Handled
         });
-        server.events.get::<TickEvent>().unwrap().add_handler(|_| {
-            println!("Tick!");
-            Handled
-        });
         let custom_event = server
             .events
             .get::<CustomEvent>()

@@ -1,5 +1,5 @@
 use kazyol_plugin_loader::load_plugins;
-use kazyol_lib::server::{Server, Kazyol};
+use kazyol_lib::server::{Server, Kazyol, ENABLED};
 use kazyol_lib::event::EventType;
 use kazyol_lib::plugin::Plugin;
 use std::collections::HashMap;
@@ -14,7 +14,11 @@ use kazyol_lib::with_server;
 
 fn main() {
     println!("Starting Kazyol");
-    with_server! (|mut server: Kazyol| {
+    ctrlc::set_handler(move || {
+        println!("Ctrl-C, shutting down");
+        unsafe { ENABLED = false };
+    }).expect("Error setting Ctrl-C handler");
+    with_server!(|mut server: Kazyol| {
         let mut plugins: Vec<Box<dyn Plugin>> = Vec::new();
         load_plugins!();
 
@@ -75,10 +79,17 @@ fn main() {
 
 fn run_tick_loop() {
     let mut last_tick = SystemTime::now().checked_sub(Duration::from_millis(1000 / TPS)).unwrap();
+    let mut should_stop = false;
     loop {
-        with_server! (|mut server: Kazyol|{
+        with_server!(|mut server: Kazyol|{
+            if !unsafe{ENABLED} {
+                should_stop = true;
+            }
             server.events.get().unwrap().dispatch_event(&Box::new(TickEvent));
         });
+        if should_stop {
+            break;
+        }
         std::thread::sleep(Duration::from_millis(max(1000 / TPS as i64 - last_tick.elapsed().unwrap().as_millis() as i64, 0) as u64));
         last_tick = SystemTime::now();
     }

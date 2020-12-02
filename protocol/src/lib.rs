@@ -1,11 +1,10 @@
 pub mod packet_receive_event;
 pub mod serverbound_packet;
+pub mod bytebuf;
+pub mod connection;
 mod listener;
 
 use kazyol_lib::server::Server;
-use kazyol_lib::events::disable_event::DisableEvent;
-use kazyol_lib::event::EventResult::Handled;
-use kazyol_lib::event::EventType;
 
 pub struct CustomEvent;
 
@@ -16,9 +15,9 @@ impl kazyol_lib::plugin::Plugin for Plugin {
         Box::new(Plugin)
     }
 
-    fn on_enable(&self, server: &mut Server) {
-        let (tx, rx) = std::sync::mpsc::channel();
-        let (tx2, rx2) = std::sync::mpsc::channel();
+    fn on_enable(&self, _server: &mut Server) {
+        let (tx, _rx) = std::sync::mpsc::channel();
+        let (_tx2, rx2) = std::sync::mpsc::channel();
         listener::start(tx, rx2);
     }
 

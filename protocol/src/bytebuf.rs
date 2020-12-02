@@ -195,23 +195,34 @@ impl<U> ByteBuf for U where U: Read {
     }
 
     fn read_t<T: 'static>(&mut self) -> Result<T> {
-        let u8_type_id = TypeId::of::<u8>();
-        let u16_type_id = TypeId::of::<u16>();
-        let u32_type_id = TypeId::of::<u32>();
-        let u64_type_id = TypeId::of::<u64>();
-        let u128_type_id = TypeId::of::<u128>();
         let type_id = TypeId::of::<T>();
 
-        if type_id == u8_type_id {
+        if type_id == TypeId::of::<u8>() {
             unsafe { std::mem::transmute_copy(&self.read_u8()) }
-        } else if type_id == u16_type_id {
+        } else if type_id == TypeId::of::<u16>() {
             unsafe { std::mem::transmute_copy(&self.read_u16()) }
-        } else if type_id == u32_type_id {
+        } else if type_id == TypeId::of::<u32>() {
             unsafe { std::mem::transmute_copy(&self.read_u32()) }
-        } else if type_id == u64_type_id {
+        } else if type_id == TypeId::of::<u64>() {
             unsafe { std::mem::transmute_copy(&self.read_u64()) }
-        } else if type_id == u128_type_id {
+        } else if type_id == TypeId::of::<u128>() {
             unsafe { std::mem::transmute_copy(&self.read_u128()) }
+        } else if type_id == TypeId::of::<i8>() {
+            unsafe { std::mem::transmute_copy(&self.read_i8()) }
+        } else if type_id == TypeId::of::<i16>() {
+            unsafe { std::mem::transmute_copy(&self.read_i16()) }
+        } else if type_id == TypeId::of::<i32>() {
+            unsafe { std::mem::transmute_copy(&self.read_i32()) }
+        } else if type_id == TypeId::of::<i64>() {
+            unsafe { std::mem::transmute_copy(&self.read_i64()) }
+        } else if type_id == TypeId::of::<f32>() {
+            unsafe { std::mem::transmute_copy(&self.read_f32()) }
+        } else if type_id == TypeId::of::<f64>() {
+            unsafe { std::mem::transmute_copy(&self.read_f64()) }
+        } else if type_id == TypeId::of::<i128>() {
+            unsafe { std::mem::transmute_copy(&self.read_i128()) }
+        } else if type_id == TypeId::of::<String>() {
+            unsafe { std::mem::transmute_copy(&self.read_string()) }
         } else {
             Err(Error::new(ErrorKind::NotFound, "Unknown type. Supported types are: [u8, u16, u32, u64, u128]"))
         }

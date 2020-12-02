@@ -25,7 +25,7 @@ server
     .unwrap()
     .add_handler(|_| {
         println!("Plugin disabled");
-        Handled
+        Handled // can also be Cancelled for cancellable events
     });
 ```
 ### Registering a custom event

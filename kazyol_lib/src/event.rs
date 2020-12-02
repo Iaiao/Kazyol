@@ -7,7 +7,7 @@ use crate::event::EventResult::Handled;
 // Example usage:
 // events.register_event(EventType::<Box<Event>>::new());
 pub struct EventType<E> {
-    handlers: HashMap<String, Vec<fn(&mut E) -> EventResult>>,
+    handlers: HashMap<String, Vec<fn(&E) -> EventResult>>,
 }
 
 impl<E> EventType<E> {
@@ -20,13 +20,13 @@ impl<E> EventType<E> {
 
     // TODO change `plugin` to something like `plugin which is running now`
     // Registers an event handler
-    pub fn add_handler(&mut self, handler: fn(&mut E) -> EventResult) {
+    pub fn add_handler(&mut self, handler: fn(&E) -> EventResult) {
         tracking::PLUGINS.with(|stack| {
             self.get_plugin_handlers(stack.borrow().last().unwrap().clone()).push(handler);
         });
     }
 
-    pub fn dispatch_event(&self, event: &mut E) -> EventDispatchResult {
+    pub fn dispatch_event(&self, event: &E) -> EventDispatchResult {
         let mut results = Vec::new();
         for (plugin, handlers) in self.handlers.iter() {
             tracking::name(plugin.clone());
@@ -40,7 +40,7 @@ impl<E> EventType<E> {
         EventDispatchResult::from(results)
     }
 
-    fn get_plugin_handlers(&mut self, plugin: String) -> &mut Vec<fn(&mut E) -> EventResult> {
+    fn get_plugin_handlers(&mut self, plugin: String) -> &mut Vec<fn(&E) -> EventResult> {
         if self.handlers.contains_key(&plugin) {
             self.handlers.get_mut(&plugin).unwrap()
         } else {

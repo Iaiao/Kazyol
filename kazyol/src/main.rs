@@ -6,6 +6,10 @@ use std::collections::HashMap;
 use std::cell::RefCell;
 use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::event::EventResult::Handled;
+use kazyol_lib::events::tick_event::TickEvent;
+use std::time::{SystemTime, Duration};
+use kazyol_lib::consts::TPS;
+use std::cmp::max;
 
 fn main() {
     println!("Starting Kazyol");
@@ -19,6 +23,9 @@ fn main() {
     server
         .events
         .register_event::<DisableEvent>(EventType::new());
+    server
+        .events
+        .register_event::<TickEvent>(EventType::new());
 
     kazyol_lib::tracking::name("main".to_string());
     server
@@ -55,11 +62,22 @@ fn main() {
         server.plugins.push(plugin);
     }
 
+    run_tick_loop(&mut server);
+
     server
         .events
         .get::<DisableEvent>()
         .unwrap()
         .dispatch_event(&mut Box::new(DisableEvent));
+}
+
+fn run_tick_loop(server: &mut Server) {
+    let mut last_tick = SystemTime::now().checked_sub(Duration::from_millis(1000 / TPS)).unwrap();
+    loop {
+        server.events.get().unwrap().dispatch_event(&Box::new(TickEvent));
+        std::thread::sleep(Duration::from_millis(max(1000 / TPS as i64 - last_tick.elapsed().unwrap().as_millis() as i64, 0) as u64));
+        last_tick = SystemTime::now();
+    }
 }
 
 thread_local! {

@@ -2,6 +2,7 @@ use kazyol_lib::server::Server;
 use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::event::EventType;
+use kazyol_lib::events::tick_event::TickEvent;
 
 pub struct CustomEvent;
 
@@ -19,6 +20,10 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             .register_event::<CustomEvent>(EventType::new());
         server.events.get::<CustomEvent>().unwrap().add_handler(|_| {
             println!("Got a custom event");
+            Handled
+        });
+        server.events.get::<TickEvent>().unwrap().add_handler(|_| {
+            println!("Tick!");
             Handled
         });
         server

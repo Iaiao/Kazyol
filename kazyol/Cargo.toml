@@ -10,4 +10,5 @@ edition = "2018"
 kazyol_plugin_loader = { path = "../kazyol_plugin_loader" }
 kazyol_lib = { path = "../kazyol_lib" }
 plugin_example = { path = "../plugin_example" }
+protocol = { path = "../protocol" }
 ctrlc = "3.1.7"

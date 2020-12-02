@@ -2,7 +2,6 @@ use kazyol_lib::server::Server;
 use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::event::EventType;
-use kazyol_lib::events::tick_event::TickEvent;
 
 pub struct CustomEvent;
 

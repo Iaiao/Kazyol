@@ -1,13 +1,13 @@
 # Kazyol
-Kazyol is a plugin-extensible event-driven Minecraft server implementation in Rust
+Kazyol is an open-source event-driven Rust Minecraft server implementation where everything is a plugin.
 
 # For server owners
-It's not ready for usage yet. If you want to help, you can translate it to your language [not yet],
+It's not ready for production yet. If you want to help, you can translate it to your language [not yet],
 become a patron [not yet] or test and report issues [not much to test yet].
 
 # For developers
-This server has two basic concepts: Event and Plugin
-## Plugin
+This server has two basic concepts: Events and Plugins
+## Plugins
 Create a Plugin struct that implements the kazyol_lib::plugin::Plugin trait
 ```rust
 pub struct Plugin;
@@ -15,7 +15,7 @@ impl kazyol_lib::plugin::Plugin for Plugin { ... }
 ```
 Add it to kazyol's Cargo.toml and plugins.txt [TODO auto-scan them in Cargo.toml]
 
-## Event
+## Events
 Plugin can register its own event and listen to others. For example, TickEvent, DisableEvent, EntityMoveEvent
 ### Listening to events
 ```rust

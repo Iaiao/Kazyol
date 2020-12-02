@@ -1,7 +1,7 @@
 use crate::server::Server;
 
 pub trait Plugin {
-    fn init(server: &mut Server) -> Box<Self> where Self: Sized;
+    fn init() -> Box<Self> where Self: Sized;
     fn on_enable(&self, _server: &mut Server) {}
     fn get_name(&self) -> String;
     fn get_description(&self) -> String;

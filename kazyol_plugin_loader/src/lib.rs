@@ -9,7 +9,7 @@ pub fn load_plugins(_: TokenStream) -> TokenStream {
             continue;
         }
         output += &format!("kazyol_lib::tracking::name(\"{}\".to_string());\n", plugin);
-        output += &format!("plugins.push({}::Plugin::init(&mut server));\n", plugin);
+        output += &format!("plugins.push({}::Plugin::init());\n", plugin);
         output += &format!("kazyol_lib::tracking::clear();");
     }
     output.parse().unwrap()

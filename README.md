@@ -48,6 +48,10 @@ server
         data: "".to_string(),
     }));
 ```
+### How to get the `server`?
+```rust
+with_server(|server: Kazyol| { /* ... */ })
+```
 
 # TO DO
 - Generic plugin storage [memory]

@@ -23,3 +23,11 @@ version = "0.1.0"
 dependencies = [
  "kazyol_lib",
 ]
+
+[[package]]
+name = "protocol"
+version = "0.1.0"
+
+[[package]]
+name = "server_list_status"
+version = "0.1.0"

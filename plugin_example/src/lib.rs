@@ -9,7 +9,7 @@ pub struct CustomEvent;
 pub struct Plugin;
 
 impl kazyol_lib::plugin::Plugin for Plugin {
-    fn init(_server: &mut Server) -> Box<Self> where Self: Sized {
+    fn init() -> Box<Self> where Self: Sized {
         println!("Hello, World!");
         Box::new(Plugin)
     }
@@ -26,11 +26,11 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             println!("Tick!");
             Handled
         });
-        server
+        let custom_event = server
             .events
             .get::<CustomEvent>()
-            .unwrap()
-            .dispatch_event(&mut Box::new(CustomEvent));
+            .unwrap();
+        custom_event.dispatch_event(&Box::new(CustomEvent));
 
         server
             .events

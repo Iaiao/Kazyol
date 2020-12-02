@@ -2,5 +2,7 @@
 members = [
     "kazyol",
     "kazyol_lib",
-    "kazyol_plugin_loader"
+    "kazyol_plugin_loader",
+    "protocol",
+    "server_list_status"
 ]

@@ -24,7 +24,7 @@ mod tests {
             Handled
         });
 
-        event.dispatch_event(&mut create_test_event());
+        event.dispatch_event( &mut create_test_event());
 
         unsafe {
             assert!(HANDLED);

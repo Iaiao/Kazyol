@@ -18,18 +18,16 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub fn send_packet(&self, packet: ClientboundPacket) {
+    pub fn send_packet(&mut self, packet: ClientboundPacket) {
         self.send.send(packet).expect("Cannot send packet");
         if let Some(packet) = self.send_confirm.recv().expect("Cannot receive packet confirmation") {
-            // TODO send packet
+            packet.write(&mut self.stream).expect("Unable to write packet");
         }
     }
     pub(crate) fn receive(&mut self) {
-        let packet = ServerboundPacket::deserialize(State::Handshake, &mut self.stream);
+        let packet = ServerboundPacket::read(State::Handshake, &mut self.stream);
         if let Ok(packet) = packet {
             self.received(packet).unwrap();
-        } else {
-            //println!("Warn: {}", packet.unwrap_err())
         }
     }
     pub(crate) fn received(&self, packet: ServerboundPacket) -> Result<(), SendError<ServerboundPacket>> {

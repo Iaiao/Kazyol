@@ -1,26 +1,45 @@
-use std::io::{Read, Result, ErrorKind, Error};
+use std::io::{Read, Result, ErrorKind, Error, Write};
 use std::any::TypeId;
 
-pub trait ByteBuf {
-    fn read_u8(&mut self) -> std::io::Result<u8>;
-    fn read_u16(&mut self) -> std::io::Result<u16>;
-    fn read_u32(&mut self) -> std::io::Result<u32>;
-    fn read_u64(&mut self) -> std::io::Result<u64>;
-    fn read_u128(&mut self) -> std::io::Result<u128>;
-    fn read_i8(&mut self) -> std::io::Result<i8>;
-    fn read_i16(&mut self) -> std::io::Result<i16>;
-    fn read_i32(&mut self) -> std::io::Result<i32>;
-    fn read_i64(&mut self) -> std::io::Result<i64>;
-    fn read_i128(&mut self) -> std::io::Result<i128>;
-    fn read_f32(&mut self) -> std::io::Result<f32>;
-    fn read_f64(&mut self) -> std::io::Result<f64>;
-    fn read_varint(&mut self) -> std::io::Result<i32>;
-    fn read_varlong(&mut self) -> std::io::Result<i64>;
-    fn read_string(&mut self) -> std::io::Result<String>;
-    fn read_t<T: 'static>(&mut self) -> std::io::Result<T>;
+pub trait ByteBufRead {
+    fn read_u8(&mut self) -> Result<u8>;
+    fn read_u16(&mut self) -> Result<u16>;
+    fn read_u32(&mut self) -> Result<u32>;
+    fn read_u64(&mut self) -> Result<u64>;
+    fn read_u128(&mut self) -> Result<u128>;
+    fn read_i8(&mut self) -> Result<i8>;
+    fn read_i16(&mut self) -> Result<i16>;
+    fn read_i32(&mut self) -> Result<i32>;
+    fn read_i64(&mut self) -> Result<i64>;
+    fn read_i128(&mut self) -> Result<i128>;
+    fn read_f32(&mut self) -> Result<f32>;
+    fn read_f64(&mut self) -> Result<f64>;
+    fn read_varint(&mut self) -> Result<i32>;
+    fn read_varlong(&mut self) -> Result<i64>;
+    fn read_string(&mut self) -> Result<String>;
+    fn read_t<T: 'static>(&mut self) -> Result<T>;
 }
 
-impl<U> ByteBuf for U where U: Read {
+pub trait ByteBufWrite {
+    fn write_u8(&mut self, item: u8) -> Result<()>;
+    fn write_u16(&mut self, item: u16) -> Result<()>;
+    fn write_u32(&mut self, item: u32) -> Result<()>;
+    fn write_u64(&mut self, item: u64) -> Result<()>;
+    fn write_u128(&mut self, item: u128) -> Result<()>;
+    fn write_i8(&mut self, item: i8) -> Result<()>;
+    fn write_i16(&mut self, item: i16) -> Result<()>;
+    fn write_i32(&mut self, item: i32) -> Result<()>;
+    fn write_i64(&mut self, item: i64) -> Result<()>;
+    fn write_i128(&mut self, item: i128) -> Result<()>;
+    fn write_f32(&mut self, item: f32) -> Result<()>;
+    fn write_f64(&mut self, item: f64) -> Result<()>;
+    fn write_varint(&mut self, item: i32) -> Result<()>;
+    fn write_varlong(&mut self, item: i64) -> Result<()>;
+    fn write_string(&mut self, item: &String) -> Result<()>;
+    fn write_t<T: 'static>(&mut self, item: T) -> Result<()>;
+}
+
+impl<U> ByteBufRead for U where U: Read {
     fn read_u8(&mut self) -> std::io::Result<u8> {
         let mut buf = [0; 1];
         let read = self.read(&mut buf)?;
@@ -215,12 +234,12 @@ impl<U> ByteBuf for U where U: Read {
             unsafe { std::mem::transmute_copy(&self.read_i32()) }
         } else if type_id == TypeId::of::<i64>() {
             unsafe { std::mem::transmute_copy(&self.read_i64()) }
+        } else if type_id == TypeId::of::<i128>() {
+            unsafe { std::mem::transmute_copy(&self.read_i128()) }
         } else if type_id == TypeId::of::<f32>() {
             unsafe { std::mem::transmute_copy(&self.read_f32()) }
         } else if type_id == TypeId::of::<f64>() {
             unsafe { std::mem::transmute_copy(&self.read_f64()) }
-        } else if type_id == TypeId::of::<i128>() {
-            unsafe { std::mem::transmute_copy(&self.read_i128()) }
         } else if type_id == TypeId::of::<String>() {
             unsafe { std::mem::transmute_copy(&self.read_string()) }
         } else {
@@ -229,102 +248,352 @@ impl<U> ByteBuf for U where U: Read {
     }
 }
 
+impl<U> ByteBufWrite for U where U: Write {
+    fn write_u8(&mut self, item: u8) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_u16(&mut self, item: u16) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_u32(&mut self, item: u32) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_u64(&mut self, item: u64) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_u128(&mut self, item: u128) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_i8(&mut self, item: i8) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_i16(&mut self, item: i16) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_i32(&mut self, item: i32) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_i64(&mut self, item: i64) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_i128(&mut self, item: i128) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_f32(&mut self, item: f32) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_f64(&mut self, item: f64) -> Result<()> {
+        if let Err(err) = self.write(&item.to_be_bytes()) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_varint(&mut self, mut item: i32) -> Result<()> {
+        let mut bytes = vec!();
+        loop {
+            let mut b = (item & 0b01111111) as u8;
+            item = ((item as u32) >> 7) as i32;
+            if item != 0 {
+                b |= 0b10000000;
+            }
+            bytes.push(b);
+            if item == 0 {
+                break;
+            }
+        }
+        if let Err(err) = self.write(&bytes) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_varlong(&mut self, mut item: i64) -> Result<()> {
+        let mut bytes = vec!();
+        loop {
+            let mut b = (item & 0b01111111) as u8;
+            item = ((item as u64) >> 7) as i64;
+            if item != 0 {
+                b |= 0b10000000;
+            }
+            bytes.push(b);
+            if item == 0 {
+                break;
+            }
+        }
+        if let Err(err) = self.write(&bytes) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_string(&mut self, item: &String) -> Result<()> {
+        let bytes = item.as_bytes();
+        if let Err(err) = self.write_varint(bytes.len() as i32) {
+            Err(err)
+        } else if let Err(err) = self.write(bytes) {
+            Err(err)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn write_t<T: 'static>(&mut self, item: T) -> Result<()> {
+        let type_id = TypeId::of::<T>();
+
+        if type_id == TypeId::of::<u8>() {
+            self.write_u8(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<u16>() {
+            self.write_u16(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<u32>() {
+            self.write_u32(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<u64>() {
+            self.write_u64(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<u128>() {
+            self.write_u128(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<i8>() {
+            self.write_i8(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<i16>() {
+            self.write_i16(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<i32>() {
+            self.write_i32(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<i64>() {
+            self.write_i64(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<i128>() {
+            self.write_i128(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<f32>() {
+            self.write_f32(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<f64>() {
+            self.write_f64(unsafe { std::mem::transmute_copy(&item) })
+        } else if type_id == TypeId::of::<String>() {
+            self.write_string(unsafe { std::mem::transmute_copy(&item) })
+        } else {
+            Err(Error::new(ErrorKind::NotFound, "Unknown type. Supported types are: [u8, u16, u32, u64, u128]"))
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::io::{Read, Cursor};
-    use crate::bytebuf::ByteBuf;
+    mod read_tests {
+        use std::io::{Read, Cursor};
+        use crate::bytebuf::ByteBufRead;
 
-    #[test]
-    fn test_u8() {
-        assert_eq!(create_read().read_u8().unwrap(), 1);
+        #[test]
+        fn test_u8() {
+            assert_eq!(create_read().read_u8().unwrap(), 1);
+        }
+
+        #[test]
+        fn test_u16() {
+            assert_eq!(create_read().read_u16().unwrap(), 1 * 256 + 2);
+        }
+
+        #[test]
+        fn test_u32() {
+            assert_eq!(create_read().read_u32().unwrap(), 1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4);
+        }
+
+        #[test]
+        fn test_u64() {
+            assert_eq!(create_read().read_u64().unwrap(), 1 * 256 * 256 * 256 * 256 * 256 * 256 * 256 + 2 * 256 * 256 * 256 * 256 * 256 * 256 + 3 * 256 * 256 * 256 * 256 * 256 + 4 * 256 * 256 * 256 * 256 + 5 * 256 * 256 * 256 + 6 * 256 * 256 + 7 * 256 + 8);
+        }
+
+        #[test]
+        fn test_u128() {
+            // too many * 256
+        }
+
+        #[test]
+        fn test_i8() {
+            assert_eq!(create_read().read_i8().unwrap(), 1);
+        }
+
+        #[test]
+        fn test_i16() {
+            assert_eq!(create_read().read_i16().unwrap(), 1 * 256 + 2);
+        }
+
+        #[test]
+        fn test_i32() {
+            assert_eq!(create_read().read_i32().unwrap(), 1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4);
+        }
+
+        #[test]
+        fn test_i64() {
+            assert_eq!(create_read().read_i64().unwrap(), 1 * 256 * 256 * 256 * 256 * 256 * 256 * 256 + 2 * 256 * 256 * 256 * 256 * 256 * 256 + 3 * 256 * 256 * 256 * 256 * 256 + 4 * 256 * 256 * 256 * 256 + 5 * 256 * 256 * 256 + 6 * 256 * 256 + 7 * 256 + 8);
+        }
+
+        #[test]
+        fn test_f32() {
+            assert_eq!(create_read().read_f32().unwrap(), 0.000000000000000000000000000000000000023879393);
+        }
+
+        #[test]
+        fn test_f64() {
+            assert_eq!(create_read().read_f64().unwrap(), 0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000820788039913184);
+        }
+
+        #[test]
+        fn test_varint() {
+            assert_eq!(Box::new(Cursor::new(vec!(0))).read_varint().unwrap(), 0);
+            assert_eq!(Box::new(Cursor::new(vec!(1))).read_varint().unwrap(), 1);
+            assert_eq!(Box::new(Cursor::new(vec!(128, 1))).read_varint().unwrap(), 128);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 1))).read_varint().unwrap(), 255);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 127))).read_varint().unwrap(), 2097151);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varint().unwrap(), 2147483647);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 15))).read_varint().unwrap(), -1);
+            assert_eq!(Box::new(Cursor::new(vec!(128, 128, 128, 128, 8))).read_varint().unwrap(), -2147483648);
+        }
+
+        #[test]
+        fn test_varlong() {
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 127))).read_varlong().unwrap(), 2097151);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varlong().unwrap(), 2147483647);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 255, 255, 255, 255, 127))).read_varlong().unwrap(), 9223372036854775807);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 255, 255, 255, 255, 255, 1))).read_varlong().unwrap(), -1);
+            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varlong().unwrap(), 2147483647);
+        }
+
+        #[test]
+        fn test_chained() {
+            let mut read = create_read();
+            assert_eq!(read.read_i8().unwrap(), 1);
+            assert_eq!(read.read_u16().unwrap(), 2 * 256 + 3);
+            assert_eq!(read.read_u8().unwrap(), 4);
+        }
+
+        #[test]
+        fn test_generic() {
+            assert_eq!(create_read().read_t::<u8>().unwrap(), 1);
+            assert_eq!(create_read().read_t::<u16>().unwrap(), 1 * 256 + 2);
+        }
+
+        fn create_read() -> Box<dyn Read> {
+            Box::new(Cursor::new(vec!(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)))
+        }
     }
 
-    #[test]
-    fn test_u16() {
-        assert_eq!(create_read().read_u16().unwrap(), 1 * 256 + 2);
-    }
+    mod write_tests {
+        use std::io::Cursor;
+        use crate::bytebuf::ByteBufWrite;
 
-    #[test]
-    fn test_u32() {
-        assert_eq!(create_read().read_u32().unwrap(), 1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4);
-    }
+        #[test]
+        fn test_u8() {
+            let mut buf = create_write();
+            buf.write_u8(1).unwrap();
+            assert_eq!(buf.into_inner(), vec!(1));
+        }
 
-    #[test]
-    fn test_u64() {
-        assert_eq!(create_read().read_u64().unwrap(), 1 * 256 * 256 * 256 * 256 * 256 * 256 * 256 + 2 * 256 * 256 * 256 * 256 * 256 * 256 + 3 * 256 * 256 * 256 * 256 * 256 + 4 * 256 * 256 * 256 * 256 + 5 * 256 * 256 * 256 + 6 * 256 * 256 + 7 * 256 + 8);
-    }
+        #[test]
+        fn test_u16() {
+            let mut buf = create_write();
+            buf.write_u16(1 * 256 + 2).unwrap();
+            assert_eq!(buf.into_inner(), vec!(1, 2));
+        }
 
-    #[test]
-    fn test_u128() {
-        // too many * 256
-    }
+        #[test]
+        fn test_i16() {
+            let mut buf = create_write();
+            buf.write_i16(1 * 256 + 2).unwrap();
+            assert_eq!(buf.into_inner(), vec!(1, 2));
+        }
 
-    #[test]
-    fn test_i8() {
-        assert_eq!(create_read().read_i8().unwrap(), 1);
-    }
+        #[test]
+        fn test_f32() {
+            let mut buf = create_write();
+            buf.write_f32(0.000000000000000000000000000000000000023879393).unwrap();
+            assert_eq!(buf.into_inner(), vec!(1, 2, 3, 4));
+        }
 
-    #[test]
-    fn test_i16() {
-        assert_eq!(create_read().read_i16().unwrap(), 1 * 256 + 2);
-    }
+        #[test]
+        fn test_varint() {
+            let mut buf = create_write();
+            buf.write_varint(2097151).unwrap();
+            assert_eq!(buf.into_inner(), vec!(255, 255, 127));
+            let mut buf = create_write();
+            buf.write_varint(-1).unwrap();
+            assert_eq!(buf.into_inner(), vec!(255, 255, 255, 255, 15));
+        }
 
-    #[test]
-    fn test_i32() {
-        assert_eq!(create_read().read_i32().unwrap(), 1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4);
-    }
+        #[test]
+        fn test_chained() {
+            let mut buf = create_write();
+            buf.write_u8(5).unwrap();
+            buf.write_u16(4 * 256 + 3).unwrap();
+            buf.write_i8(2).unwrap();
+            assert_eq!(buf.into_inner(), vec!(5, 4, 3, 2))
+        }
 
-    #[test]
-    fn test_i64() {
-        assert_eq!(create_read().read_i64().unwrap(), 1 * 256 * 256 * 256 * 256 * 256 * 256 * 256 + 2 * 256 * 256 * 256 * 256 * 256 * 256 + 3 * 256 * 256 * 256 * 256 * 256 + 4 * 256 * 256 * 256 * 256 + 5 * 256 * 256 * 256 + 6 * 256 * 256 + 7 * 256 + 8);
-    }
+        #[test]
+        fn test_generic() {
+            let mut buf = create_write();
+            buf.write_t::<u16>(1 * 256 + 2).unwrap();
+            assert_eq!(buf.into_inner(), vec!(1, 2));
+        }
 
-    #[test]
-    fn test_f32() {
-        assert_eq!(create_read().read_f32().unwrap(), 0.000000000000000000000000000000000000023879393);
-    }
+        // TODO more tests for all types, read+write tests
 
-    #[test]
-    fn test_f64() {
-        assert_eq!(create_read().read_f64().unwrap(), 0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000820788039913184);
-    }
-
-    #[test]
-    fn test_varint() {
-        assert_eq!(Box::new(Cursor::new(vec!(0))).read_varint().unwrap(), 0);
-        assert_eq!(Box::new(Cursor::new(vec!(1))).read_varint().unwrap(), 1);
-        assert_eq!(Box::new(Cursor::new(vec!(128, 1))).read_varint().unwrap(), 128);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 1))).read_varint().unwrap(), 255);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 127))).read_varint().unwrap(), 2097151);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varint().unwrap(), 2147483647);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 15))).read_varint().unwrap(), -1);
-        assert_eq!(Box::new(Cursor::new(vec!(128, 128, 128, 128, 8))).read_varint().unwrap(), -2147483648);
-    }
-
-    #[test]
-    fn test_varlong() {
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 127))).read_varlong().unwrap(), 2097151);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varlong().unwrap(), 2147483647);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 255, 255, 255, 255, 127))).read_varlong().unwrap(), 9223372036854775807);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 255, 255, 255, 255, 255, 1))).read_varlong().unwrap(), -1);
-        assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varlong().unwrap(), 2147483647);
-    }
-
-    #[test]
-    fn test_chained() {
-        let mut read = create_read();
-        assert_eq!(read.read_i8().unwrap(), 1);
-        assert_eq!(read.read_u16().unwrap(), 2 * 256 + 3);
-        assert_eq!(read.read_u8().unwrap(), 4);
-    }
-
-    #[test]
-    fn test_generic() {
-        assert_eq!(create_read().read_t::<u8>().unwrap(), 1);
-        assert_eq!(create_read().read_t::<u16>().unwrap(), 1 * 256 + 2);
-    }
-
-    fn create_read() -> Box<dyn Read> {
-        Box::new(Cursor::new(vec!(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)))
+        fn create_write() -> Cursor<Vec<u8>> {
+            Cursor::new(Vec::new())
+        }
     }
 }

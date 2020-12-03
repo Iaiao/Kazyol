@@ -1,5 +1,5 @@
 use std::io::{Read, Error, ErrorKind, Cursor};
-use crate::bytebuf::ByteBuf;
+use crate::bytebuf::ByteBufRead;
 use crate::connection::State;
 
 #[derive(Debug)]
@@ -13,17 +13,16 @@ pub enum ServerboundPacket {
 }
 
 impl ServerboundPacket {
-    pub fn deserialize<R>(state: State, mut data: R) -> Result<ServerboundPacket, std::io::Error>
+    pub fn read<R>(state: State, mut read: R) -> Result<ServerboundPacket, std::io::Error>
         where R: Read
     {
-        let packet_size = data.read_varint()?;
+        let packet_size = read.read_varint()?;
         if packet_size < 0 {
             return Err(Error::new(ErrorKind::InvalidData, "Negative packet size"));
         }
         let mut buf = vec![0; packet_size as usize];
-        let read = data.read(&mut buf)?;
-        if read != buf.len() {
-            println!("{} != {}", read, buf.len());
+        let read_bytes = read.read(&mut buf)?;
+        if read_bytes != buf.len() {
             return Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"));
         }
         let mut buf = Cursor::new(buf);

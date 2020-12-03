@@ -2,11 +2,8 @@ use std::sync::mpsc::{Sender, Receiver, channel};
 use std::thread;
 use crate::packet_receive_event::PacketReceiveEvent;
 use std::net::TcpListener;
-use crate::serverbound_packet::ServerboundPacket;
-use crate::connection::{State, Connection};
-use std::borrow::Borrow;
+use crate::connection::Connection;
 use std::sync::{Mutex, Arc};
-use crate::bytebuf::ByteBuf;
 
 pub enum ListenerAction {
 //    SendPacket(String, ClientboundPacket)
@@ -46,7 +43,7 @@ pub(crate) fn start(_tx: Sender<PacketReceiveEvent>, _rx: Receiver<ListenerActio
                     }
                     if let Ok(packet) = receive.try_recv() {
                         // TODO event
-                        println!("PACKET {:?}", packet);
+                        dbg!(packet);
                     }
                 }
             }

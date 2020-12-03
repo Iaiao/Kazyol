@@ -1,3 +1,4 @@
+![Build Status](https://api.travis-ci.org/Iaiao/Kazyol.svg?branch=main)
 # Kazyol
 Kazyol is an open-source event-driven Rust Minecraft server implementation where everything is a plugin.
 

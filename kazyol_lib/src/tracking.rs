@@ -17,3 +17,9 @@ pub fn clear() {
         stack.borrow_mut().clear()
     });
 }
+
+pub fn pop() {
+    PLUGINS.with(|stack| {
+        stack.borrow_mut().pop();
+    });
+}

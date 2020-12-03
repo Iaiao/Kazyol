@@ -1,9 +1,9 @@
 use kazyol_plugin_loader::load_plugins;
-use kazyol_lib::server::{Server, Kazyol, ENABLED};
+use kazyol_lib::server::{ENABLED, Server};
 use kazyol_lib::event::EventType;
 use kazyol_lib::plugin::Plugin;
 use std::collections::HashMap;
-use std::cell::{RefCell, RefMut};
+use std::cell::RefCell;
 use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::events::tick_event::TickEvent;
@@ -11,6 +11,7 @@ use std::time::{SystemTime, Duration};
 use kazyol_lib::consts::TPS;
 use std::cmp::max;
 use kazyol_lib::with_server;
+use kazyol_lib::tracking;
 
 fn main() {
     println!("Starting Kazyol");
@@ -18,7 +19,7 @@ fn main() {
         println!("Ctrl-C, shutting down");
         unsafe { ENABLED = false };
     }).expect("Error setting Ctrl-C handler");
-    with_server!(|mut server: Kazyol| {
+    with_server!(|mut server: &mut Server| {
         let mut plugins: Vec<Box<dyn Plugin>> = Vec::new();
         load_plugins!();
 
@@ -29,7 +30,7 @@ fn main() {
             .events
             .register_event::<TickEvent>(EventType::new());
 
-        kazyol_lib::tracking::name("main".to_string());
+        tracking::name("main".to_string());
         server
             .events
             .get::<DisableEvent>()
@@ -55,7 +56,9 @@ fn main() {
 ", plugin.get_name(), dep, dep, plugin.get_name())
                 }
             }
+            tracking::name(plugin.get_name());
             plugin.on_enable(&mut server);
+            tracking::pop();
             println!(
                 "Enabled plugin {} {}",
                 plugin.get_name(),
@@ -68,7 +71,7 @@ fn main() {
 
     run_tick_loop();
 
-    with_server!(|mut server: Kazyol| {
+    with_server!(|server: &mut Server| {
         server
             .events
             .get::<DisableEvent>()
@@ -81,11 +84,11 @@ fn run_tick_loop() {
     let mut last_tick = SystemTime::now().checked_sub(Duration::from_millis(1000 / TPS)).unwrap();
     let mut should_stop = false;
     loop {
-        with_server!(|mut server: Kazyol|{
-            if !unsafe{ENABLED} {
+        with_server!(|server: &mut Server|{
+            if !unsafe { ENABLED } {
                 should_stop = true;
             }
-            server.events.get().unwrap().dispatch_event(&Box::new(TickEvent));
+            server.events.get().unwrap().dispatch_event(&TickEvent);
         });
         if should_stop {
             break;

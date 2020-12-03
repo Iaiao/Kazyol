@@ -2,7 +2,7 @@ use std::io::{Read, Error, ErrorKind, Cursor};
 use crate::bytebuf::ByteBufRead;
 use crate::connection::State;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ServerboundPacket {
     Handshake {
         protocol: i32,
@@ -50,7 +50,7 @@ impl ServerboundPacket {
 }
 
 #[repr(i32)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum HandshakeState {
     Status = 1,
     Login = 2,

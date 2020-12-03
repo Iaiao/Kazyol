@@ -45,23 +45,31 @@ server
     .events
     .get::<DisableEvent>()
     .unwrap()
-    .dispatch_event(&mut Box::new(CustomEvent {
+    .dispatch_event(&CustomEvent {
         data: "".to_string(),
-    }));
+    });
 ```
 ### How to get the `server`?
 ```rust
-with_server!(|server: Kazyol| { /* ... */ })
+with_server!(|server: &mut Server| { /* ... */ });
 ```
+### States
+Your plugin can have multiple singleton states.
+It can be HashMap, Vec or even your custom Struct/Enum/whatever
+```rust
+struct State { ... }
 
-# TO DO
-- Generic plugin storage [memory]
-`server.storage.get<MyDataType>()`
-  
-- Generic plugin storage [saved in binary file]
-  `server.save_storage.get<MyDataType>()` give it better name than `save_storage`
-  
-- Scheduler - schedule a task to run on next tick (for async stuff), after 10 ticks or every 20 ticks
+STATES.with(|states| {
+    let states = states.borrow();
+    // or
+    let mut states = states.borrow_mut();
+
+    states.set<State>(State { ... });
+    let state: Option<&State> = states.get<State>(); // None if not set
+    let state: Option<&mut State> = states.get_mut<State>(); // None if not set
+    ...
+})
+```
 
 ## Contributing
 Currently, Kazyol is not even a working prototype, so any contribution will be appreciated.
@@ -69,4 +77,6 @@ If you want to help but don't know what to do, here are few ideas:
 - Core plugins: packets, nbt, world, player, entities, chat, redstone, world generator
 - Additional plugins: Proxy support (BungeeCord, Velocity, etc), BossBar API, Commands API, Queue
 - Plugin manager and repository (something like Cargo/npm/pip, but without 95% of programming stuff, just for users)
+- State storage (saved in a binary file)
+- Scheduler - schedule a task to run on next tick (for async stuff), after 10 ticks or every 20 ticks
 - Any issue in [TO DO](https://github.com/Iaiao/Kazyol/projects/1)

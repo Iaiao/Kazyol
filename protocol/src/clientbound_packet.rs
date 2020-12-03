@@ -1,6 +1,7 @@
 use std::io::{Write, Cursor, Result};
 use crate::bytebuf::ByteBufWrite;
 
+#[derive(Clone)]
 pub enum ClientboundPacket {
     Response {
         json: String

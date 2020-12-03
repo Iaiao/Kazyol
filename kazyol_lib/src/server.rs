@@ -1,7 +1,7 @@
 use crate::event::Events;
 use crate::plugin::Plugin;
-use std::cell::{RefCell, RefMut};
 use crate::events::disable_event::DisableEvent;
+use std::cell::UnsafeCell;
 use std::time::SystemTime;
 
 pub struct Server {
@@ -20,10 +20,10 @@ impl Server {
 }
 
 thread_local! {
-    pub static SERVER: RefCell<Server> = RefCell::new(Server {
+    pub static SERVER: UnsafeCell<Server> = UnsafeCell::new(Server {
         events: Events::new(),
         plugins: Vec::new(),
-        started: SystemTime::now()
+        started: SystemTime::now(),
     })
 }
 
@@ -32,11 +32,9 @@ macro_rules! with_server {
     ($block: expr) => {
         {
             kazyol_lib::server::SERVER.with(|server| {
-                let server: RefMut<Server> = server.borrow_mut();
+                let server = unsafe { &mut *server.get() };
                 $block(server)
             });
         }
     };
 }
-
-pub type Kazyol<'a> = RefMut<'a, Server>;

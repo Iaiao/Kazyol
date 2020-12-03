@@ -18,7 +18,6 @@ impl<E> EventType<E> {
         }
     }
 
-    // TODO change `plugin` to something like `plugin which is running now`
     // Registers an event handler
     pub fn add_handler(&mut self, handler: fn(&E) -> EventResult) {
         tracking::PLUGINS.with(|stack| {
@@ -33,9 +32,7 @@ impl<E> EventType<E> {
             for handler in handlers.iter() {
                 results.push(handler(event));
             }
-            tracking::PLUGINS.with(|stack| {
-                stack.borrow_mut().pop();
-            });
+            tracking::pop();
         }
         EventDispatchResult::from(results)
     }
@@ -59,7 +56,7 @@ impl Events {
     pub fn new() -> Events {
         Events { events: HashMap::new() }
     }
-    pub fn get<E: 'static>(&mut self) -> Option<&mut EventType<Box<E>>> {
+    pub fn get<E: 'static>(&mut self) -> Option<&mut EventType<E>> {
         match self.events.get_mut(&TypeId::of::<E>()) {
             None => None,
             Some(e) => {
@@ -70,7 +67,7 @@ impl Events {
             }
         }
     }
-    pub fn register_event<E: 'static>(&mut self, event_type: EventType<Box<E>>) {
+    pub fn register_event<E: 'static>(&mut self, event_type: EventType<E>) {
         self.events.insert(TypeId::of::<E>(), Box::new(event_type));
     }
 }

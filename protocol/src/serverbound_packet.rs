@@ -13,7 +13,9 @@ pub enum ServerboundPacket {
 }
 
 impl ServerboundPacket {
-    pub fn deserialize(state: State, mut data: Box<dyn Read>) -> Result<ServerboundPacket, std::io::Error> {
+    pub fn deserialize<R>(state: State, mut data: R) -> Result<ServerboundPacket, std::io::Error>
+        where R: Read
+    {
         let packet_size = data.read_varint()?;
         if packet_size < 0 {
             return Err(Error::new(ErrorKind::InvalidData, "Negative packet size"));
@@ -21,6 +23,7 @@ impl ServerboundPacket {
         let mut buf = vec![0; packet_size as usize];
         let read = data.read(&mut buf)?;
         if read != buf.len() {
+            println!("{} != {}", read, buf.len());
             return Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"));
         }
         let mut buf = Cursor::new(buf);
@@ -38,7 +41,7 @@ impl ServerboundPacket {
                         1 => HandshakeState::Status,
                         2 => HandshakeState::Login,
                         _ => return Err(Error::new(ErrorKind::InvalidData, "Unknown handshake state"))
-                    }
+                    },
                 };
                 Ok(packet)
             }

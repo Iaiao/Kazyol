@@ -2,6 +2,7 @@ pub mod packet_receive_event;
 pub mod serverbound_packet;
 pub mod bytebuf;
 pub mod connection;
+pub mod clientbound_packet;
 mod listener;
 
 use kazyol_lib::server::Server;

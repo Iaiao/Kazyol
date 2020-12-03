@@ -88,7 +88,7 @@ fn run_tick_loop() {
             if !unsafe { ENABLED } {
                 should_stop = true;
             }
-            server.events.get().unwrap().dispatch_event(&TickEvent);
+            server.events.get().unwrap().dispatch_event(&mut TickEvent);
         });
         if should_stop {
             break;

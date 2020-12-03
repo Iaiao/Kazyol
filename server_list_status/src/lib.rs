@@ -1,9 +1,8 @@
 use kazyol_lib::server::Server;
-use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::event::EventResult::Handled;
-use kazyol_lib::event::EventType;
-use protocol::*;
 use protocol::packet_receive_event::PacketReceiveEvent;
+use protocol::serverbound_packet::{ServerboundPacket, HandshakeState};
+use protocol::connection::State;
 
 pub struct CustomEvent;
 
@@ -18,6 +17,14 @@ impl kazyol_lib::plugin::Plugin for Plugin {
     fn on_enable(&self, server: &mut Server) {
         server.events.get::<PacketReceiveEvent>().expect("Protocol packet receive event not found").add_handler(|e| {
             dbg!(e.get_packet());
+            match e.get_packet() {
+                ServerboundPacket::Handshake{ state, ..} => {
+                    if *state == HandshakeState::Status {
+                        e.set_state(State::Status);
+                    }
+                },
+                _ => ()
+            }
             Handled
         });
     }

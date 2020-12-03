@@ -9,7 +9,8 @@ pub enum ServerboundPacket {
         server_address: String,
         port: u16,
         state: HandshakeState,
-    }
+    },
+    Request {},
 }
 
 impl ServerboundPacket {
@@ -43,6 +44,10 @@ impl ServerboundPacket {
                     },
                 };
                 Ok(packet)
+            },
+            (State::Status, 0x00) => {
+                let packet = ServerboundPacket::Request {};
+                Ok(packet)
             }
             _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID"))
         }
@@ -50,7 +55,7 @@ impl ServerboundPacket {
 }
 
 #[repr(i32)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum HandshakeState {
     Status = 1,
     Login = 2,

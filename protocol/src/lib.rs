@@ -45,7 +45,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                         match action {
                             ListenerSendAction::SendEvent(event) => {
                                 let mut e = event.lock().expect("Unable to lock PacketSendEvent in main thread").clone();
-                                let result = server.events.get().unwrap().dispatch_event(&e);
+                                let result = server.events.get().unwrap().dispatch_event(&mut e);
                                 e.handled = true;
                                 if result.is_cancelled() {
                                     *e.get_packet_mut() = None;
@@ -53,7 +53,10 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                                 *event.lock().unwrap() = e;
                             }
                             ListenerSendAction::ReceiveEvent(event) => {
-                                server.events.get().unwrap().dispatch_event(&event);
+                                let mut e = event.lock().expect("Unable to lock PacketReceiveEvent in main thread").clone();
+                                let _ = server.events.get().unwrap().dispatch_event(&mut e);
+                                e.handled = true;
+                                *event.lock().unwrap() = e;
                             }
                         }
                     });

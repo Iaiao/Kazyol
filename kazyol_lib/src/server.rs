@@ -15,7 +15,7 @@ pub static mut ENABLED: bool = true;
 
 impl Server {
     pub fn shutdown(&mut self) {
-        self.events.get::<DisableEvent>().unwrap().dispatch_event(&Box::new(DisableEvent));
+        self.events.get::<DisableEvent>().unwrap().dispatch_event(&mut DisableEvent);
     }
 }
 

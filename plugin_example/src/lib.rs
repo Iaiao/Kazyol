@@ -25,7 +25,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             .events
             .get::<CustomEvent>()
             .unwrap();
-        custom_event.dispatch_event(&Box::new(CustomEvent));
+        custom_event.dispatch_event(&mut CustomEvent);
 
         server
             .events

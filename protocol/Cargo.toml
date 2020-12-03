@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 kazyol_lib = { path = "../kazyol_lib" }
+rand = "0.7.3"

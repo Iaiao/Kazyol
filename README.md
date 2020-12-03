@@ -74,7 +74,7 @@ STATES.with(|states| {
 ## Contributing
 Currently, Kazyol is not even a working prototype, so any contribution will be appreciated.
 If you want to help but don't know what to do, here are few ideas:
-- Core plugins: packets, nbt, world, player, entities, chat, redstone, world generator
+- Core plugins: packets - [server](https://github.com/Iaiao/Kazyol/blob/main/protocol/src/serverbound_packet.rs), [client](https://github.com/Iaiao/Kazyol/blob/main/protocol/src/clientbound_packet.rs), [protocol](https://wiki.vg/Protocol) (Targeting [latest snapshot](https://wiki.vg/Pre-release_protocol)), nbt, world, player, entities, chat, redstone, world generator
 - Additional plugins: Proxy support (BungeeCord, Velocity, etc), BossBar API, Commands API, Queue
 - Plugin manager and repository (something like Cargo/npm/pip, but without 95% of programming stuff, just for users)
 - State storage (saved in a binary file)

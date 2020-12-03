@@ -49,7 +49,9 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                                 e.handled = true;
                                 *event.lock().unwrap() = e;
                             }
-                            ListenerSendAction::ReceiveEvent(_event) => {}
+                            ListenerSendAction::ReceiveEvent(event) => {
+                                server.events.get().unwrap().dispatch_event(&event);
+                            }
                         }
                     });
                 }

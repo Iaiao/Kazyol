@@ -31,7 +31,6 @@ impl Connection {
         }
     }
     pub(crate) fn received(&mut self, packet: ServerboundPacket) -> Result<(), SendError<ServerboundPacket>> {
-        self.send_packet(ClientboundPacket::Response {json: "a".to_string()});
         self.receive.send(packet)
     }
 }

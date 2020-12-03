@@ -4,6 +4,7 @@ use std::net::TcpListener;
 use crate::connection::Connection;
 use std::sync::{Mutex, Arc};
 use crate::packet_send_event::PacketSendEvent;
+use crate::packet_receive_event::PacketReceiveEvent;
 
 pub enum ListenerReceiveAction {
 //    SendPacket(String, ClientboundPacket)
@@ -11,7 +12,7 @@ pub enum ListenerReceiveAction {
 
 pub enum ListenerSendAction {
     SendEvent(Arc<Mutex<PacketSendEvent>> /*, PlayerConnection */),
-    ReceiveEvent(PacketSendEvent /*, PlayerConnection */),
+    ReceiveEvent(PacketReceiveEvent /*, PlayerConnection */),
 }
 
 pub(crate) fn start(tx: Sender<ListenerSendAction>, _rx: Receiver<ListenerReceiveAction>) {
@@ -48,8 +49,8 @@ pub(crate) fn start(tx: Sender<ListenerSendAction>, _rx: Receiver<ListenerReceiv
                     send_confirm.send(event.lock().unwrap().get_packet().clone()).expect("Cannot send packet between threads");
                 }
                 if let Ok(packet) = receive.try_recv() {
-                    // TODO event
-                    dbg!(packet);
+                    let event = PacketReceiveEvent::new(packet);
+                    tx.send(ListenerSendAction::ReceiveEvent(event)).expect("Cannot send PacketReceiveEvent to main thread");
                 }
             }
         }

@@ -11,4 +11,5 @@ kazyol_plugin_loader = { path = "../kazyol_plugin_loader" }
 kazyol_lib = { path = "../kazyol_lib" }
 plugin_example = { path = "../plugin_example" }
 protocol = { path = "../protocol" }
+server_list_status = { path = "../server_list_status" }
 ctrlc = "3.1.7"

@@ -82,6 +82,15 @@ pub struct EventDispatchResult {
     cancelled: bool
 }
 
+impl EventDispatchResult {
+    pub fn is_cancelled(&self) -> bool {
+        self.cancelled
+    }
+    pub fn set_cancelled(&mut self, cancelled: bool) {
+        self.cancelled = cancelled;
+    }
+}
+
 impl From<Vec<EventResult>> for EventDispatchResult {
     fn from(results: Vec<EventResult>) -> Self {
         EventDispatchResult {

@@ -51,7 +51,7 @@ server
 ```
 ### How to get the `server`?
 ```rust
-with_server(|server: Kazyol| { /* ... */ })
+with_server!(|server: Kazyol| { /* ... */ })
 ```
 
 # TO DO

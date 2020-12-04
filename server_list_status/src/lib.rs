@@ -3,30 +3,84 @@ use kazyol_lib::event::EventResult::Handled;
 use protocol::packet_receive_event::PacketReceiveEvent;
 use protocol::serverbound_packet::{ServerboundPacket, HandshakeState};
 use protocol::connection::State;
+use std::fs::File;
+use std::io::Read;
+use protocol::clientbound_packet::ClientboundPacket;
+use kazyol_lib::states::STATES;
+use protocol::packet_send_event::PacketSendEvent;
 
 pub struct CustomEvent;
 
 pub struct Plugin;
 
+const MINECRAFT_VERSION: &'static str = "20w49a";
+const PROTOCOL_VERSION: i32 = 0b01000000000000000000000000001000;
+const SERVER_DESCRIPTION: &'static str = "Welcome to §9Kazyol§r!"; // TODO make it configurable
+
+struct ImageBase64(String);
+
 impl kazyol_lib::plugin::Plugin for Plugin {
     fn init() -> Box<Self> where Self: Sized {
         println!("Hello, World!");
+        let icon_file = File::open("server-icon.png");
+        let image = if let Ok(mut icon_file) = icon_file {
+            let mut bytes = vec![0; icon_file.metadata().expect("Cannot get server-icon.png metadata").len() as usize];
+            icon_file.read(&mut bytes).expect("Cannot read server-icon.png");
+            base64::encode(bytes)
+        } else { String::new() };
+        STATES.with(|states| {
+            states.borrow_mut().set(ImageBase64(image));
+        });
         Box::new(Plugin)
     }
 
     fn on_enable(&self, server: &mut Server) {
-        server.events.get::<PacketReceiveEvent>().expect("Protocol packet receive event not found").add_handler(|e| {
-            dbg!(e.get_packet());
-            match e.get_packet() {
-                ServerboundPacket::Handshake{ state, ..} => {
+        server.events.get::<PacketReceiveEvent>().expect("Protocol packet receive event not found").add_handler(|event| {
+            dbg!(event.get_packet());
+            match event.get_packet() {
+                ServerboundPacket::Handshake { state, .. } => {
                     if *state == HandshakeState::Status {
-                        e.set_state(State::Status);
+                        event.set_state(State::Status);
+                        STATES.with(|states| {
+                            event.send_packet(ClientboundPacket::Response {
+                                json: format!("{{
+    \"version\": {{
+        \"name\": \"{}\",
+        \"protocol\": {}
+    }},
+    \"players\": {{
+        \"max\": 100,
+        \"online\": 1,
+        \"sample\": [
+            {{
+                \"name\": \"ChunkDev\",
+                \"id\": \"71f04c4c-47af-42fa-a27c-246a141e8326\"
+            }}
+        ]
+    }},
+    \"description\": {{
+        \"text\": \"{}\"
+    }},
+    \"favicon\": \"data:image/png;base64,{}\"
+}}", MINECRAFT_VERSION, PROTOCOL_VERSION, SERVER_DESCRIPTION, states.borrow().get::<ImageBase64>().unwrap().0)
+                            });
+                        });
                     }
                 },
+                ServerboundPacket::Ping { payload } => {
+                    event.send_packet(ClientboundPacket::Pong {
+                        payload: *payload
+                    })
+                }
                 _ => ()
             }
             Handled
         });
+        server.events.get::<PacketSendEvent>().unwrap().add_handler(|event| {
+            // TODO not working
+            dbg!(event.get_packet().clone().unwrap());
+            Handled
+        })
     }
 
     fn get_name(&self) -> String {

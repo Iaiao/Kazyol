@@ -11,17 +11,31 @@ pub enum ServerboundPacket {
         state: HandshakeState,
     },
     Request {},
+    Ping {
+        payload: i64
+    },
 }
 
 impl ServerboundPacket {
-    pub fn read<R>(state: State, mut read: R) -> Result<ServerboundPacket, std::io::Error>
+    pub fn read_with_size<R>(state: State, mut read: R) -> Result<ServerboundPacket, std::io::Error>
+        where R: Read
+    {
+        let packet_size = Self::get_size(&mut read)?;
+        Self::read(state, read, packet_size)
+    }
+    pub fn get_size<R>(mut read: R) -> Result<usize, std::io::Error>
         where R: Read
     {
         let packet_size = read.read_varint()?;
         if packet_size < 0 {
             return Err(Error::new(ErrorKind::InvalidData, "Negative packet size"));
         }
-        let mut buf = vec![0; packet_size as usize];
+        Ok(packet_size as usize)
+    }
+    pub fn read<R>(state: State, mut read: R, packet_size: usize) -> Result<ServerboundPacket, std::io::Error>
+        where R: Read
+    {
+        let mut buf = vec![0; packet_size];
         let read_bytes = read.read(&mut buf)?;
         if read_bytes != buf.len() {
             return Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"));
@@ -44,9 +58,15 @@ impl ServerboundPacket {
                     },
                 };
                 Ok(packet)
-            },
+            }
             (State::Status, 0x00) => {
                 let packet = ServerboundPacket::Request {};
+                Ok(packet)
+            }
+            (State::Status, 0x01) => {
+                let packet = ServerboundPacket::Ping {
+                    payload: buf.read_i64()?
+                };
                 Ok(packet)
             }
             _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID"))

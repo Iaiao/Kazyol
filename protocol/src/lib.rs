@@ -28,11 +28,10 @@ impl kazyol_lib::plugin::Plugin for Plugin {
 
     fn on_enable(&self, server: &mut Server) {
         let (tx, rx) = std::sync::mpsc::channel();
-        let (_tx2, rx2) = std::sync::mpsc::channel();
-        listener::start(tx, rx2);
         STATES.with(|states| {
             let mut states = states.borrow_mut();
-            states.set::<Receiver<ListenerSendAction>>(rx);
+            states.set(rx);
+            states.set(listener::start(tx));
         });
         server.events.register_event::<PacketSendEvent>(EventType::new());
         server.events.register_event::<PacketReceiveEvent>(EventType::new());

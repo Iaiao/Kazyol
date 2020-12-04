@@ -1,11 +1,14 @@
 use std::io::{Write, Cursor, Result};
 use crate::bytebuf::ByteBufWrite;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ClientboundPacket {
     Response {
         json: String
-    }
+    },
+    Pong {
+        payload: i64
+    },
 }
 
 impl ClientboundPacket {
@@ -15,6 +18,10 @@ impl ClientboundPacket {
             ClientboundPacket::Response { json } => {
                 packet.write_varint(0x00)?;
                 packet.write_string(json)?;
+            }
+            ClientboundPacket::Pong { payload } => {
+                packet.write_varint(0x01)?;
+                packet.write_i64(*payload)?;
             }
         }
         let packet = packet.into_inner();

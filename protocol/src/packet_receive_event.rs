@@ -1,13 +1,14 @@
-use crate::serverbound_packet::ServerboundPacket;
+use crate::clientbound_packet::ClientboundPacket;
 use crate::connection::State;
 use crate::listener::ConnectionHandle;
-use crate::clientbound_packet::ClientboundPacket;
+use crate::serverbound_packet::ServerboundPacket;
 
 #[derive(Debug, Clone)]
 pub struct PacketReceiveEvent {
     packet: ServerboundPacket,
     set_state: Option<State>,
     /// ConnectionHandle is used to send packets
+    ///
     /// You can also save it for further usage
     /// as it implements Clone and is thread-safe
     pub handle: ConnectionHandle,
@@ -16,7 +17,12 @@ pub struct PacketReceiveEvent {
 
 impl PacketReceiveEvent {
     pub fn new(packet: ServerboundPacket, handle: ConnectionHandle) -> PacketReceiveEvent {
-        PacketReceiveEvent { packet, set_state: None, handle, handled: false }
+        PacketReceiveEvent {
+            packet,
+            set_state: None,
+            handle,
+            handled: false,
+        }
     }
     pub fn set_state(&mut self, state: State) {
         self.set_state = Some(state);

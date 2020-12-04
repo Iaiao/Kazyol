@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use std::any::{TypeId, Any};
-use crate::tracking;
 use crate::event::EventResult::Handled;
+use crate::tracking;
+use std::any::{Any, TypeId};
+use std::collections::HashMap;
 
 // TODO documentation
 // Example usage:
@@ -14,14 +14,15 @@ impl<E> EventType<E> {
     // Creates a new event type
     pub fn new() -> EventType<E> {
         EventType {
-            handlers: HashMap::new()
+            handlers: HashMap::new(),
         }
     }
 
     // Registers an event handler
     pub fn add_handler(&mut self, handler: fn(&mut E) -> EventResult) {
         tracking::PLUGINS.with(|stack| {
-            self.get_plugin_handlers(stack.borrow().last().unwrap().clone()).push(handler);
+            self.get_plugin_handlers(stack.borrow().last().unwrap().clone())
+                .push(handler);
         });
     }
 
@@ -49,22 +50,22 @@ impl<E> EventType<E> {
 }
 
 pub struct Events {
-    events: HashMap<TypeId, Box<dyn Any>>
+    events: HashMap<TypeId, Box<dyn Any>>,
 }
 
 impl Events {
     pub fn new() -> Events {
-        Events { events: HashMap::new() }
+        Events {
+            events: HashMap::new(),
+        }
     }
     pub fn get<E: 'static>(&mut self) -> Option<&mut EventType<E>> {
         match self.events.get_mut(&TypeId::of::<E>()) {
             None => None,
-            Some(e) => {
-                match e.downcast_mut() {
-                    None => None,
-                    Some(e) => Some(e)
-                }
-            }
+            Some(e) => match e.downcast_mut() {
+                None => None,
+                Some(e) => Some(e),
+            },
         }
     }
     pub fn register_event<E: 'static>(&mut self, event_type: EventType<E>) {
@@ -79,7 +80,7 @@ pub enum EventResult {
 }
 
 pub struct EventDispatchResult {
-    cancelled: bool
+    cancelled: bool,
 }
 
 impl EventDispatchResult {
@@ -94,7 +95,7 @@ impl EventDispatchResult {
 impl From<Vec<EventResult>> for EventDispatchResult {
     fn from(results: Vec<EventResult>) -> Self {
         EventDispatchResult {
-            cancelled: results.contains(&Handled)
+            cancelled: results.contains(&Handled),
         }
     }
 }

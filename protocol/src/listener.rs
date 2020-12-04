@@ -1,14 +1,14 @@
-use std::sync::mpsc::{Sender, channel};
-use std::thread;
-use std::net::TcpListener;
-use crate::connection::{Connection, State};
-use std::sync::{Mutex, Arc};
-use crate::packet_send_event::PacketSendEvent;
-use crate::packet_receive_event::PacketReceiveEvent;
 use crate::clientbound_packet::ClientboundPacket;
-use uuid::Uuid;
-use kazyol_lib::with_server;
+use crate::connection::{Connection, State};
+use crate::packet_receive_event::PacketReceiveEvent;
+use crate::packet_send_event::PacketSendEvent;
 use kazyol_lib::server::Server;
+use kazyol_lib::with_server;
+use std::net::TcpListener;
+use std::sync::mpsc::{channel, Sender};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use uuid::Uuid;
 
 pub enum ListenerSendAction {
     #[allow(dead_code)]
@@ -35,21 +35,30 @@ pub(crate) fn start(tx: Sender<ListenerSendAction>) {
                 stream,
                 unique_id,
             };
-            connections2.lock().unwrap().push((ConnectionHandle(send_tx, receive_set_state_tx, unique_id), receive_rx));
+            connections2.lock().unwrap().push((
+                ConnectionHandle(send_tx, receive_set_state_tx, unique_id),
+                receive_rx,
+            ));
             thread::spawn(move || {
-                while connection.receive() {};
+                while connection.receive() {}
             });
         }
     });
-    thread::spawn(move || {
-        loop {
-            for (handle, receive) in connections.lock().unwrap().iter() {
-                if let Ok(packet) = receive.try_recv() {
-                    let event = Arc::new(Mutex::new(PacketReceiveEvent::new(packet, handle.clone())));
-                    tx.send(ListenerSendAction::ReceiveEvent(event.clone())).expect("Cannot send PacketReceiveEvent to main thread");
-                    while !event.lock().expect("Unable to lock PacketSendEvent").handled {};
-                    handle.1.send(event.lock().unwrap().get_state_change()).expect("Cannot send packet between threads");
-                }
+    thread::spawn(move || loop {
+        for (handle, receive) in connections.lock().unwrap().iter() {
+            if let Ok(packet) = receive.try_recv() {
+                let event = Arc::new(Mutex::new(PacketReceiveEvent::new(packet, handle.clone())));
+                tx.send(ListenerSendAction::ReceiveEvent(event.clone()))
+                    .expect("Cannot send PacketReceiveEvent to main thread");
+                while !event
+                    .lock()
+                    .expect("Unable to lock PacketSendEvent")
+                    .handled
+                {}
+                handle
+                    .1
+                    .send(event.lock().unwrap().get_state_change())
+                    .expect("Cannot send packet between threads");
             }
         }
     });
@@ -59,10 +68,16 @@ pub(crate) fn start(tx: Sender<ListenerSendAction>) {
 pub struct ConnectionHandle(Sender<ClientboundPacket>, Sender<Option<State>>, Uuid);
 
 impl ConnectionHandle {
-    pub fn get_send(&self) -> &Sender<ClientboundPacket> { &self.0 }
+    pub fn get_send(&self) -> &Sender<ClientboundPacket> {
+        &self.0
+    }
     #[allow(dead_code)]
-    pub(crate) fn get_state_send(&self) -> &Sender<Option<State>> { &self.1 }
-    pub fn get_uuid(&self) -> Uuid { self.2.clone() }
+    pub(crate) fn get_state_send(&self) -> &Sender<Option<State>> {
+        &self.1
+    }
+    pub fn get_uuid(&self) -> Uuid {
+        self.2.clone()
+    }
     pub fn send(&self, packet: ClientboundPacket, event: bool) {
         let mut packet = Some(packet);
         with_server!(|server: &mut Server| {

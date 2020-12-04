@@ -1,6 +1,6 @@
 use crate::event::Events;
-use crate::plugin::Plugin;
 use crate::events::disable_event::DisableEvent;
+use crate::plugin::Plugin;
 use std::cell::UnsafeCell;
 use std::time::SystemTime;
 
@@ -15,7 +15,10 @@ pub static mut ENABLED: bool = true;
 
 impl Server {
     pub fn shutdown(&mut self) {
-        self.events.get::<DisableEvent>().unwrap().dispatch_event(&mut DisableEvent);
+        self.events
+            .get::<DisableEvent>()
+            .unwrap()
+            .dispatch_event(&mut DisableEvent);
     }
 }
 
@@ -29,12 +32,10 @@ thread_local! {
 
 #[macro_export]
 macro_rules! with_server {
-    ($block: expr) => {
-        {
-            kazyol_lib::server::SERVER.with(|server| {
-                let server = unsafe { &mut *server.get() };
-                $block(server)
-            });
-        }
-    };
+    ($block: expr) => {{
+        kazyol_lib::server::SERVER.with(|server| {
+            let server = unsafe { &mut *server.get() };
+            $block(server)
+        });
+    }};
 }

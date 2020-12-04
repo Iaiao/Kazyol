@@ -1,5 +1,5 @@
-use std::io::{Read, Result, ErrorKind, Error, Write};
 use std::any::TypeId;
+use std::io::{Error, ErrorKind, Read, Result, Write};
 
 pub trait ByteBufRead {
     fn read_u8(&mut self) -> Result<u8>;
@@ -39,12 +39,18 @@ pub trait ByteBufWrite {
     fn write_t<T: 'static>(&mut self, item: T) -> Result<()>;
 }
 
-impl<U> ByteBufRead for U where U: Read {
+impl<U> ByteBufRead for U
+where
+    U: Read,
+{
     fn read_u8(&mut self) -> std::io::Result<u8> {
         let mut buf = [0; 1];
         let read = self.read(&mut buf)?;
         if read != 1 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(u8::from_be_bytes(buf))
         }
@@ -54,7 +60,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 2];
         let read = self.read(&mut buf)?;
         if read != 2 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(u16::from_be_bytes(buf))
         }
@@ -64,7 +73,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 4];
         let read = self.read(&mut buf)?;
         if read != 4 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(u32::from_be_bytes(buf))
         }
@@ -74,7 +86,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 8];
         let read = self.read(&mut buf)?;
         if read != 8 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(u64::from_be_bytes(buf))
         }
@@ -84,7 +99,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 16];
         let read = self.read(&mut buf)?;
         if read != 16 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(u128::from_be_bytes(buf))
         }
@@ -94,7 +112,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 1];
         let read = self.read(&mut buf)?;
         if read != 1 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(i8::from_be_bytes(buf))
         }
@@ -104,7 +125,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 2];
         let read = self.read(&mut buf)?;
         if read != 2 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(i16::from_be_bytes(buf))
         }
@@ -114,7 +138,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 4];
         let read = self.read(&mut buf)?;
         if read != 4 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(i32::from_be_bytes(buf))
         }
@@ -124,7 +151,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 8];
         let read = self.read(&mut buf)?;
         if read != 8 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(i64::from_be_bytes(buf))
         }
@@ -134,18 +164,23 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 16];
         let read = self.read(&mut buf)?;
         if read != 16 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(i128::from_be_bytes(buf))
         }
     }
 
-
     fn read_f32(&mut self) -> Result<f32> {
         let mut buf = [0; 4];
         let read = self.read(&mut buf)?;
         if read != 4 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(f32::from_be_bytes(buf))
         }
@@ -155,7 +190,10 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = [0; 8];
         let read = self.read(&mut buf)?;
         if read != 8 {
-            Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ))
         } else {
             Ok(f64::from_be_bytes(buf))
         }
@@ -203,13 +241,19 @@ impl<U> ByteBufRead for U where U: Read {
         let mut buf = vec![0; size as usize];
         let size = self.read(&mut buf)?;
         if size != buf.len() {
-            return Err(Error::new(ErrorKind::InvalidData, "Cannot read string: Stream ended"));
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read string: Stream ended",
+            ));
         }
         let result = String::from_utf8(buf);
         if let Ok(result) = result {
             Ok(result)
         } else {
-            Err(Error::new(ErrorKind::InvalidData, "Invalid UTF-8: ".to_string() + &result.unwrap_err().to_string()))
+            Err(Error::new(
+                ErrorKind::InvalidData,
+                "Invalid UTF-8: ".to_string() + &result.unwrap_err().to_string(),
+            ))
         }
     }
 
@@ -243,12 +287,18 @@ impl<U> ByteBufRead for U where U: Read {
         } else if type_id == TypeId::of::<String>() {
             unsafe { std::mem::transmute_copy(&self.read_string()) }
         } else {
-            Err(Error::new(ErrorKind::NotFound, "Unknown type. Supported types are: [u8, u16, u32, u64, u128]"))
+            Err(Error::new(
+                ErrorKind::NotFound,
+                "Unknown type. Supported types are: [u8, u16, u32, u64, u128]",
+            ))
         }
     }
 }
 
-impl<U> ByteBufWrite for U where U: Write {
+impl<U> ByteBufWrite for U
+where
+    U: Write,
+{
     fn write_u8(&mut self, item: u8) -> Result<()> {
         if let Err(err) = self.write(&item.to_be_bytes()) {
             Err(err)
@@ -346,7 +396,7 @@ impl<U> ByteBufWrite for U where U: Write {
     }
 
     fn write_varint(&mut self, mut item: i32) -> Result<()> {
-        let mut bytes = vec!();
+        let mut bytes = vec![];
         loop {
             let mut b = (item & 0b01111111) as u8;
             item = ((item as u32) >> 7) as i32;
@@ -366,7 +416,7 @@ impl<U> ByteBufWrite for U where U: Write {
     }
 
     fn write_varlong(&mut self, mut item: i64) -> Result<()> {
-        let mut bytes = vec!();
+        let mut bytes = vec![];
         loop {
             let mut b = (item & 0b01111111) as u8;
             item = ((item as u64) >> 7) as i64;
@@ -426,7 +476,10 @@ impl<U> ByteBufWrite for U where U: Write {
         } else if type_id == TypeId::of::<String>() {
             self.write_string(unsafe { std::mem::transmute_copy(&item) })
         } else {
-            Err(Error::new(ErrorKind::NotFound, "Unknown type. Supported types are: [u8, u16, u32, u64, u128]"))
+            Err(Error::new(
+                ErrorKind::NotFound,
+                "Unknown type. Supported types are: [u8, u16, u32, u64, u128]",
+            ))
         }
     }
 }
@@ -434,8 +487,8 @@ impl<U> ByteBufWrite for U where U: Write {
 #[cfg(test)]
 mod tests {
     mod read_tests {
-        use std::io::{Read, Cursor};
         use crate::bytebuf::ByteBufRead;
+        use std::io::{Cursor, Read};
 
         #[test]
         fn test_u8() {
@@ -449,12 +502,25 @@ mod tests {
 
         #[test]
         fn test_u32() {
-            assert_eq!(create_read().read_u32().unwrap(), 1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4);
+            assert_eq!(
+                create_read().read_u32().unwrap(),
+                1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4
+            );
         }
 
         #[test]
         fn test_u64() {
-            assert_eq!(create_read().read_u64().unwrap(), 1 * 256 * 256 * 256 * 256 * 256 * 256 * 256 + 2 * 256 * 256 * 256 * 256 * 256 * 256 + 3 * 256 * 256 * 256 * 256 * 256 + 4 * 256 * 256 * 256 * 256 + 5 * 256 * 256 * 256 + 6 * 256 * 256 + 7 * 256 + 8);
+            assert_eq!(
+                create_read().read_u64().unwrap(),
+                1 * 256 * 256 * 256 * 256 * 256 * 256 * 256
+                    + 2 * 256 * 256 * 256 * 256 * 256 * 256
+                    + 3 * 256 * 256 * 256 * 256 * 256
+                    + 4 * 256 * 256 * 256 * 256
+                    + 5 * 256 * 256 * 256
+                    + 6 * 256 * 256
+                    + 7 * 256
+                    + 8
+            );
         }
 
         #[test]
@@ -474,17 +540,33 @@ mod tests {
 
         #[test]
         fn test_i32() {
-            assert_eq!(create_read().read_i32().unwrap(), 1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4);
+            assert_eq!(
+                create_read().read_i32().unwrap(),
+                1 * 256 * 256 * 256 + 2 * 256 * 256 + 3 * 256 + 4
+            );
         }
 
         #[test]
         fn test_i64() {
-            assert_eq!(create_read().read_i64().unwrap(), 1 * 256 * 256 * 256 * 256 * 256 * 256 * 256 + 2 * 256 * 256 * 256 * 256 * 256 * 256 + 3 * 256 * 256 * 256 * 256 * 256 + 4 * 256 * 256 * 256 * 256 + 5 * 256 * 256 * 256 + 6 * 256 * 256 + 7 * 256 + 8);
+            assert_eq!(
+                create_read().read_i64().unwrap(),
+                1 * 256 * 256 * 256 * 256 * 256 * 256 * 256
+                    + 2 * 256 * 256 * 256 * 256 * 256 * 256
+                    + 3 * 256 * 256 * 256 * 256 * 256
+                    + 4 * 256 * 256 * 256 * 256
+                    + 5 * 256 * 256 * 256
+                    + 6 * 256 * 256
+                    + 7 * 256
+                    + 8
+            );
         }
 
         #[test]
         fn test_f32() {
-            assert_eq!(create_read().read_f32().unwrap(), 0.000000000000000000000000000000000000023879393);
+            assert_eq!(
+                create_read().read_f32().unwrap(),
+                0.000000000000000000000000000000000000023879393
+            );
         }
 
         #[test]
@@ -496,21 +578,76 @@ mod tests {
         fn test_varint() {
             assert_eq!(Box::new(Cursor::new(vec!(0))).read_varint().unwrap(), 0);
             assert_eq!(Box::new(Cursor::new(vec!(1))).read_varint().unwrap(), 1);
-            assert_eq!(Box::new(Cursor::new(vec!(128, 1))).read_varint().unwrap(), 128);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 1))).read_varint().unwrap(), 255);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 127))).read_varint().unwrap(), 2097151);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varint().unwrap(), 2147483647);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 15))).read_varint().unwrap(), -1);
-            assert_eq!(Box::new(Cursor::new(vec!(128, 128, 128, 128, 8))).read_varint().unwrap(), -2147483648);
+            assert_eq!(
+                Box::new(Cursor::new(vec!(128, 1))).read_varint().unwrap(),
+                128
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 1))).read_varint().unwrap(),
+                255
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 255, 127)))
+                    .read_varint()
+                    .unwrap(),
+                2097151
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 255, 255, 255, 7)))
+                    .read_varint()
+                    .unwrap(),
+                2147483647
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 255, 255, 255, 15)))
+                    .read_varint()
+                    .unwrap(),
+                -1
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(128, 128, 128, 128, 8)))
+                    .read_varint()
+                    .unwrap(),
+                -2147483648
+            );
         }
 
         #[test]
         fn test_varlong() {
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 127))).read_varlong().unwrap(), 2097151);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varlong().unwrap(), 2147483647);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 255, 255, 255, 255, 127))).read_varlong().unwrap(), 9223372036854775807);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 255, 255, 255, 255, 255, 1))).read_varlong().unwrap(), -1);
-            assert_eq!(Box::new(Cursor::new(vec!(255, 255, 255, 255, 7))).read_varlong().unwrap(), 2147483647);
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 255, 127)))
+                    .read_varlong()
+                    .unwrap(),
+                2097151
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 255, 255, 255, 7)))
+                    .read_varlong()
+                    .unwrap(),
+                2147483647
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(
+                    255, 255, 255, 255, 255, 255, 255, 255, 127
+                )))
+                .read_varlong()
+                .unwrap(),
+                9223372036854775807
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(
+                    255, 255, 255, 255, 255, 255, 255, 255, 255, 1
+                )))
+                .read_varlong()
+                .unwrap(),
+                -1
+            );
+            assert_eq!(
+                Box::new(Cursor::new(vec!(255, 255, 255, 255, 7)))
+                    .read_varlong()
+                    .unwrap(),
+                2147483647
+            );
         }
 
         #[test]
@@ -528,13 +665,15 @@ mod tests {
         }
 
         fn create_read() -> Box<dyn Read> {
-            Box::new(Cursor::new(vec!(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)))
+            Box::new(Cursor::new(vec![
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+            ]))
         }
     }
 
     mod write_tests {
-        use std::io::Cursor;
         use crate::bytebuf::ByteBufWrite;
+        use std::io::Cursor;
 
         #[test]
         fn test_u8() {
@@ -560,7 +699,8 @@ mod tests {
         #[test]
         fn test_f32() {
             let mut buf = create_write();
-            buf.write_f32(0.000000000000000000000000000000000000023879393).unwrap();
+            buf.write_f32(0.000000000000000000000000000000000000023879393)
+                .unwrap();
             assert_eq!(buf.into_inner(), vec!(1, 2, 3, 4));
         }
 

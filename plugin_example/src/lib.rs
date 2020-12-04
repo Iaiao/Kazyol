@@ -1,14 +1,17 @@
-use kazyol_lib::server::Server;
-use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::event::EventType;
+use kazyol_lib::events::disable_event::DisableEvent;
+use kazyol_lib::server::Server;
 
 pub struct CustomEvent;
 
 pub struct Plugin;
 
 impl kazyol_lib::plugin::Plugin for Plugin {
-    fn init() -> Box<Self> where Self: Sized {
+    fn init() -> Box<Self>
+    where
+        Self: Sized,
+    {
         println!("Hello, World!");
         Box::new(Plugin)
     }
@@ -17,14 +20,15 @@ impl kazyol_lib::plugin::Plugin for Plugin {
         server
             .events
             .register_event::<CustomEvent>(EventType::new());
-        server.events.get::<CustomEvent>().unwrap().add_handler(|_| {
-            println!("Got a custom event");
-            Handled
-        });
-        let custom_event = server
+        server
             .events
             .get::<CustomEvent>()
-            .unwrap();
+            .unwrap()
+            .add_handler(|_| {
+                println!("Got a custom event");
+                Handled
+            });
+        let custom_event = server.events.get::<CustomEvent>().unwrap();
         custom_event.dispatch_event(&mut CustomEvent);
 
         server

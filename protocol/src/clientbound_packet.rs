@@ -1,18 +1,17 @@
-use std::io::{Write, Cursor, Result};
 use crate::bytebuf::ByteBufWrite;
+use std::io::{Cursor, Result, Write};
 
 #[derive(Clone, Debug)]
 pub enum ClientboundPacket {
-    Response {
-        json: String
-    },
-    Pong {
-        payload: i64
-    },
+    Response { json: String },
+    Pong { payload: i64 },
 }
 
 impl ClientboundPacket {
-    pub fn write<T>(&self, mut write: T) -> Result<()> where T: Write {
+    pub fn write<T>(&self, mut write: T) -> Result<()>
+    where
+        T: Write,
+    {
         let mut packet = Cursor::new(Vec::new());
         match self {
             ClientboundPacket::Response { json } => {

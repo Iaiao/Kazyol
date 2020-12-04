@@ -1,7 +1,7 @@
 mod tests {
-    use crate::tracking;
-    use crate::event::EventType;
     use crate::event::EventResult::Handled;
+    use crate::event::EventType;
+    use crate::tracking;
 
     // TODO split this test to event, data and stack tests
     #[test]
@@ -24,7 +24,7 @@ mod tests {
             Handled
         });
 
-        event.dispatch_event( &mut create_test_event());
+        event.dispatch_event(&mut create_test_event());
 
         unsafe {
             assert!(HANDLED);
@@ -34,11 +34,11 @@ mod tests {
 
     fn create_test_event() -> TestEvent {
         TestEvent {
-            data: "Event data".to_string()
+            data: "Event data".to_string(),
         }
     }
 
     pub struct TestEvent {
-        data: String
+        data: String,
     }
 }

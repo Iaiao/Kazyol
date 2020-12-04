@@ -7,15 +7,11 @@ thread_local! {
 }
 
 pub fn name(name: String) {
-    PLUGINS.with(|stack| {
-        stack.borrow_mut().push(name)
-    });
+    PLUGINS.with(|stack| stack.borrow_mut().push(name));
 }
 
 pub fn clear() {
-    PLUGINS.with(|stack| {
-        stack.borrow_mut().clear()
-    });
+    PLUGINS.with(|stack| stack.borrow_mut().clear());
 }
 
 pub fn pop() {

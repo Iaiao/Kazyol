@@ -1,6 +1,6 @@
-use std::io::{Read, Error, ErrorKind, Cursor};
 use crate::bytebuf::ByteBufRead;
 use crate::connection::State;
+use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
 pub enum ServerboundPacket {
@@ -12,19 +12,21 @@ pub enum ServerboundPacket {
     },
     Request {},
     Ping {
-        payload: i64
+        payload: i64,
     },
 }
 
 impl ServerboundPacket {
     pub fn read_with_size<R>(state: State, mut read: R) -> Result<ServerboundPacket, std::io::Error>
-        where R: Read
+    where
+        R: Read,
     {
         let packet_size = Self::get_size(&mut read)?;
         Self::read(state, read, packet_size)
     }
     pub fn get_size<R>(mut read: R) -> Result<usize, std::io::Error>
-        where R: Read
+    where
+        R: Read,
     {
         let packet_size = read.read_varint()?;
         if packet_size < 0 {
@@ -32,13 +34,21 @@ impl ServerboundPacket {
         }
         Ok(packet_size as usize)
     }
-    pub fn read<R>(state: State, mut read: R, packet_size: usize) -> Result<ServerboundPacket, std::io::Error>
-        where R: Read
+    pub fn read<R>(
+        state: State,
+        mut read: R,
+        packet_size: usize,
+    ) -> Result<ServerboundPacket, std::io::Error>
+    where
+        R: Read,
     {
         let mut buf = vec![0; packet_size];
         let read_bytes = read.read(&mut buf)?;
         if read_bytes != buf.len() {
-            return Err(Error::new(ErrorKind::InvalidData, "Cannot read, stream ended"));
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                "Cannot read, stream ended",
+            ));
         }
         let mut buf = Cursor::new(buf);
 
@@ -54,7 +64,12 @@ impl ServerboundPacket {
                     state: match buf.read_varint()? {
                         1 => HandshakeState::Status,
                         2 => HandshakeState::Login,
-                        _ => return Err(Error::new(ErrorKind::InvalidData, "Unknown handshake state"))
+                        _ => {
+                            return Err(Error::new(
+                                ErrorKind::InvalidData,
+                                "Unknown handshake state",
+                            ))
+                        }
                     },
                 };
                 Ok(packet)
@@ -65,11 +80,11 @@ impl ServerboundPacket {
             }
             (State::Status, 0x01) => {
                 let packet = ServerboundPacket::Ping {
-                    payload: buf.read_i64()?
+                    payload: buf.read_i64()?,
                 };
                 Ok(packet)
             }
-            _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID"))
+            _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID")),
         }
     }
 }

@@ -9,7 +9,10 @@ pub struct PacketSendEvent {
 
 impl PacketSendEvent {
     pub fn new(packet: ClientboundPacket) -> PacketSendEvent {
-        PacketSendEvent { packet: Some(packet), handled: false }
+        PacketSendEvent {
+            packet: Some(packet),
+            handled: false,
+        }
     }
     pub fn get_packet(&self) -> &Option<ClientboundPacket> {
         &self.packet

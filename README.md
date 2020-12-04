@@ -59,16 +59,12 @@ It can be HashMap, Vec or even your custom Struct/Enum/whatever
 ```rust
 struct State { ... }
 
-STATES.with(|states| {
-    let states = states.borrow();
-    // or
-    let mut states = states.borrow_mut();
-
+with_states!(|states: &mut States| {
     states.set<State>(State { ... });
     let state: Option<&State> = states.get<State>(); // None if not set
     let state: Option<&mut State> = states.get_mut<State>(); // None if not set
     ...
-})
+});
 ```
 
 ## Contributing

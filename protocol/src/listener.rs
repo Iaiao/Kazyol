@@ -7,6 +7,8 @@ use crate::packet_send_event::PacketSendEvent;
 use crate::packet_receive_event::PacketReceiveEvent;
 use crate::clientbound_packet::ClientboundPacket;
 use uuid::Uuid;
+use kazyol_lib::with_server;
+use kazyol_lib::server::Server;
 
 pub enum ListenerSendAction {
     #[allow(dead_code)]
@@ -61,11 +63,18 @@ impl ConnectionHandle {
     #[allow(dead_code)]
     pub(crate) fn get_state_send(&self) -> &Sender<Option<State>> { &self.1 }
     pub fn get_uuid(&self) -> Uuid { self.2.clone() }
-    pub fn send(&self, mut packet: ClientboundPacket, event: bool) {
-        if event {
-            // TODO event
-        }
-        self.0.send(packet).expect("Cannot send packet to player")
+    pub fn send(&self, packet: ClientboundPacket, event: bool) {
+        let mut packet = Some(packet);
+        with_server!(|server: &mut Server| {
+            if event {
+                let mut event = PacketSendEvent::new(packet.unwrap());
+                server.events.get().unwrap().dispatch_event(&mut event);
+                packet = event.get_packet().clone();
+            }
+            if let Some(packet) = packet {
+                self.0.send(packet).expect("Cannot send packet to player");
+            }
+        });
     }
 }
 

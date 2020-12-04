@@ -1,9 +1,7 @@
 use crate::clientbound_packet::ClientboundPacket;
 use crate::serverbound_packet::ServerboundPacket;
-use kazyol_lib::consts::TPS;
 use std::net::TcpStream;
 use std::sync::mpsc::{Receiver, Sender};
-use std::time::Duration;
 use uuid::Uuid;
 
 #[derive(Debug, Clone)]
@@ -33,12 +31,7 @@ impl Connection {
                 .expect("Cannot send packet to player");
         }
 
-        // TODO set timeout to None when first byte of varint received
-        self.stream
-            .set_read_timeout(Some(Duration::from_millis(1000 / TPS)))
-            .unwrap();
         if let Ok(packet_size) = ServerboundPacket::get_size(&mut self.stream) {
-            self.stream.set_read_timeout(None).unwrap();
             let packet = ServerboundPacket::read(self.state.clone(), &mut self.stream, packet_size);
             if let Ok(packet) = packet {
                 self.received(packet);

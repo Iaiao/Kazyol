@@ -1,6 +1,7 @@
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::server::Server;
-use kazyol_lib::states::STATES;
+use kazyol_lib::states::States;
+use kazyol_lib::with_states;
 use protocol::clientbound_packet::ClientboundPacket;
 use protocol::connection::State;
 use protocol::packet_receive_event::PacketReceiveEvent;
@@ -8,8 +9,6 @@ use protocol::packet_send_event::PacketSendEvent;
 use protocol::serverbound_packet::{HandshakeState, ServerboundPacket};
 use std::fs::File;
 use std::io::Read;
-
-pub struct CustomEvent;
 
 pub struct Plugin;
 
@@ -41,8 +40,8 @@ impl kazyol_lib::plugin::Plugin for Plugin {
         } else {
             String::new()
         };
-        STATES.with(|states| {
-            states.borrow_mut().set(ImageBase64(image));
+        with_states!(|states: &mut States| {
+            states.set(ImageBase64(image));
         });
         Box::new(Plugin)
     }
@@ -58,7 +57,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                     ServerboundPacket::Handshake { state, .. } => {
                         if *state == HandshakeState::Status {
                             event.set_state(State::Status);
-                            STATES.with(|states| {
+                            with_states!(|states: &mut States| {
                                 event.send_packet(ClientboundPacket::Response {
                                     json: format!(
                                         "{{
@@ -84,7 +83,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                                         MINECRAFT_VERSION,
                                         PROTOCOL_VERSION,
                                         SERVER_DESCRIPTION,
-                                        states.borrow().get::<ImageBase64>().unwrap().0
+                                        states.get::<ImageBase64>().unwrap().0
                                     ),
                                 });
                             });

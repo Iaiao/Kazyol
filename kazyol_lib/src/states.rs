@@ -1,6 +1,6 @@
 use crate::tracking;
 use std::any::{Any, TypeId};
-use std::cell::RefCell;
+use std::cell::UnsafeCell;
 use std::collections::HashMap;
 
 pub struct States {
@@ -8,8 +8,19 @@ pub struct States {
 }
 
 thread_local! {
-    pub static STATES: RefCell<States> = RefCell::new(States::new());
+    pub static STATES: UnsafeCell<States> = UnsafeCell::new(States::new());
 }
+
+#[macro_export]
+macro_rules! with_states {
+    ($block: expr) => {{
+        kazyol_lib::states::STATES.with(|states| {
+            let states = unsafe { &mut *states.get() };
+            $block(states)
+        });
+    }};
+}
+
 
 impl States {
     pub fn new() -> States {
@@ -49,7 +60,6 @@ impl States {
         tracking::PLUGINS.with(|stack| {
             plugin = stack.borrow().last().unwrap().clone();
         });
-        println!("Plugin: {}", plugin);
         match self.states.get_mut(&plugin) {
             None => None,
             Some(map) => match map.get_mut(&TypeId::of::<T>()) {

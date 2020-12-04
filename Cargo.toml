@@ -4,5 +4,6 @@ members = [
     "kazyol_lib",
     "kazyol_plugin_loader",
     "protocol",
-    "server_list_status"
+    "server_list_status",
+    "player"
 ]

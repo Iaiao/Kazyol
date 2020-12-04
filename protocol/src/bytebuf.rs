@@ -1,5 +1,9 @@
 use std::any::TypeId;
 use std::io::{Error, ErrorKind, Read, Result, Write};
+use uuid::Uuid;
+
+pub type VarInt = i32;
+pub type VarLong = i64;
 
 pub trait ByteBufRead {
     fn read_u8(&mut self) -> Result<u8>;
@@ -14,9 +18,10 @@ pub trait ByteBufRead {
     fn read_i128(&mut self) -> Result<i128>;
     fn read_f32(&mut self) -> Result<f32>;
     fn read_f64(&mut self) -> Result<f64>;
-    fn read_varint(&mut self) -> Result<i32>;
-    fn read_varlong(&mut self) -> Result<i64>;
+    fn read_varint(&mut self) -> Result<VarInt>;
+    fn read_varlong(&mut self) -> Result<VarLong>;
     fn read_string(&mut self) -> Result<String>;
+    fn read_uuid(&mut self) -> Result<Uuid>;
     fn read_t<T: 'static>(&mut self) -> Result<T>;
 }
 
@@ -33,9 +38,10 @@ pub trait ByteBufWrite {
     fn write_i128(&mut self, item: i128) -> Result<()>;
     fn write_f32(&mut self, item: f32) -> Result<()>;
     fn write_f64(&mut self, item: f64) -> Result<()>;
-    fn write_varint(&mut self, item: i32) -> Result<()>;
-    fn write_varlong(&mut self, item: i64) -> Result<()>;
+    fn write_varint(&mut self, item: VarInt) -> Result<()>;
+    fn write_varlong(&mut self, item: VarLong) -> Result<()>;
     fn write_string(&mut self, item: &String) -> Result<()>;
+    fn write_uuid(&mut self, item: &Uuid) -> Result<()>;
     fn write_t<T: 'static>(&mut self, item: T) -> Result<()>;
 }
 
@@ -199,14 +205,14 @@ where
         }
     }
 
-    fn read_varint(&mut self) -> Result<i32> {
+    fn read_varint(&mut self) -> Result<VarInt> {
         let mut num_read = 0;
         let mut result: i32 = 0;
         let mut read = 0b10000000;
         while read & 0b10000000 != 0 {
             read = self.read_u8()?;
             let value = read & 0b01111111;
-            result |= (value as i32) << (7 * num_read as i32);
+            result |= (value as VarInt) << (7 * num_read as VarInt);
 
             num_read += 1;
             if num_read > 5 {
@@ -216,14 +222,14 @@ where
         Ok(result)
     }
 
-    fn read_varlong(&mut self) -> Result<i64> {
+    fn read_varlong(&mut self) -> Result<VarLong> {
         let mut num_read = 0;
         let mut result: i64 = 0;
         let mut read = 0b10000000;
         while read & 0b10000000 != 0 {
             read = self.read_u8()?;
             let value = read & 0b01111111;
-            result |= (value as i64) << (7 * num_read as i64);
+            result |= (value as VarLong) << (7 * num_read as VarLong);
 
             num_read += 1;
             if num_read > 10 {
@@ -255,6 +261,10 @@ where
                 "Invalid UTF-8: ".to_string() + &result.unwrap_err().to_string(),
             ))
         }
+    }
+
+    fn read_uuid(&mut self) -> Result<Uuid> {
+        Ok(Uuid::from_u128(self.read_u128()?))
     }
 
     fn read_t<T: 'static>(&mut self) -> Result<T> {
@@ -444,6 +454,10 @@ where
         } else {
             Ok(())
         }
+    }
+
+    fn write_uuid(&mut self, item: &Uuid) -> Result<()> {
+        self.write_u128(item.as_u128())
     }
 
     fn write_t<T: 'static>(&mut self, item: T) -> Result<()> {
@@ -737,3 +751,5 @@ mod tests {
         }
     }
 }
+
+// TODO test `Uuid` and protocol::structs::*

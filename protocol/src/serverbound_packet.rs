@@ -1,11 +1,11 @@
-use crate::bytebuf::ByteBufRead;
+use crate::bytebuf::{ByteBufRead, VarInt};
 use crate::connection::State;
 use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
 pub enum ServerboundPacket {
     Handshake {
-        protocol: i32,
+        protocol: VarInt,
         server_address: String,
         port: u16,
         state: HandshakeState,
@@ -13,6 +13,18 @@ pub enum ServerboundPacket {
     Request {},
     Ping {
         payload: i64,
+    },
+    LoginStart {
+        name: String,
+    },
+    EncryptionResponse {
+        shared_secret: Vec<u8>,
+        verify_token: Vec<u8>,
+    },
+    LoginPluginResponse {
+        message_id: VarInt,
+        successful: bool,
+        data: Option<Vec<u8>>,
     },
 }
 
@@ -68,7 +80,7 @@ impl ServerboundPacket {
                             return Err(Error::new(
                                 ErrorKind::InvalidData,
                                 "Unknown handshake state",
-                            ))
+                            ));
                         }
                     },
                 };
@@ -81,6 +93,12 @@ impl ServerboundPacket {
             (State::Status, 0x01) => {
                 let packet = ServerboundPacket::Ping {
                     payload: buf.read_i64()?,
+                };
+                Ok(packet)
+            }
+            (State::Login, 0x00) => {
+                let packet = ServerboundPacket::LoginStart {
+                    name: buf.read_string()?
                 };
                 Ok(packet)
             }

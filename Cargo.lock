@@ -52,6 +52,7 @@ dependencies = [
  "ctrlc",
  "kazyol_lib",
  "kazyol_plugin_loader",
+ "player",
  "plugin_example",
  "protocol",
  "server_list_status",
@@ -81,6 +82,14 @@ dependencies = [
  "cc",
  "cfg-if",
  "libc",
+]
+
+[[package]]
+name = "player"
+version = "0.1.0"
+dependencies = [
+ "kazyol_lib",
+ "protocol",
 ]
 
 [[package]]

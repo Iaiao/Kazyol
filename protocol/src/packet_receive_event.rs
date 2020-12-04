@@ -8,9 +8,6 @@ pub struct PacketReceiveEvent {
     packet: ServerboundPacket,
     set_state: Option<State>,
     /// ConnectionHandle is used to send packets
-    /// ```
-    /// handle.0.send(packet)
-    /// ```
     /// You can also save it for further usage
     /// as it implements Clone and is thread-safe
     pub handle: ConnectionHandle,

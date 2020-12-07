@@ -160,14 +160,35 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                     ServerboundPacket::ClientSettings { locale, .. } => {
                         // Just to check if it works
                         println!("Player's language: {}", locale);
+                        event.send_packet(ClientboundPacket::PlayerPositionAndLook {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                            yaw: 0.0,
+                            pitch: 0.0,
+                            x_is_relative: false,
+                            y_is_relative: false,
+                            z_is_relative: false,
+                            yaw_is_relative: false,
+                            pitch_is_relative: false,
+                            teleport_id: 42,
+                        })
                     }
                     ServerboundPacket::PlayerPosition { x, y, z, .. } => {
                         println!("Player moved to {} {} {}", x, y, z);
                     }
                     ServerboundPacket::PlayerPositionAndRotation {
-                        x, y, z, yaw, pitch, ..
+                        x,
+                        y,
+                        z,
+                        yaw,
+                        pitch,
+                        ..
                     } => {
-                        println!("Player moved to {} {} {}, rotation: {}deg, {}deg", x, y, z, yaw, pitch);
+                        println!(
+                            "Player moved to {} {} {}, rotation: {}deg, {}deg",
+                            x, y, z, yaw, pitch
+                        );
                     }
                     _ => (),
                 }

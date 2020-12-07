@@ -149,5 +149,5 @@ pub mod dimension_codec {
 #[derive(Clone, Debug)]
 pub enum Hand {
     Main,
-    Off
+    Off,
 }

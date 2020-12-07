@@ -58,6 +58,19 @@ pub enum ClientboundPacket {
         flying_speed: f32,
         field_of_view: f32,
     },
+    PlayerPositionAndLook {
+        x: f64,
+        y: f64,
+        z: f64,
+        yaw: f32,
+        pitch: f32,
+        x_is_relative: bool,
+        y_is_relative: bool,
+        z_is_relative: bool,
+        yaw_is_relative: bool,
+        pitch_is_relative: bool,
+        teleport_id: VarInt,
+    },
 }
 
 impl ClientboundPacket {
@@ -118,21 +131,80 @@ impl ClientboundPacket {
                 packet.write_bool(*is_flat)?;
             }
             ClientboundPacket::PlayerAbilities {
-                invulnerable, flying, allow_flying, instant_break, flying_speed, field_of_view
+                invulnerable,
+                flying,
+                allow_flying,
+                instant_break,
+                flying_speed,
+                field_of_view,
             } => {
                 packet.write_varint(0x31)?;
                 let mut bitmask = 0b0000;
-                if *invulnerable { bitmask |= 0b0001 }
-                if *flying { bitmask |= 0b0010 }
-                if *allow_flying { bitmask |= 0b0100 }
-                if *instant_break { bitmask |= 0b1000 }
+                if *invulnerable {
+                    bitmask |= 0b0001
+                }
+                if *flying {
+                    bitmask |= 0b0010
+                }
+                if *allow_flying {
+                    bitmask |= 0b0100
+                }
+                if *instant_break {
+                    bitmask |= 0b1000
+                }
                 packet.write_i8(bitmask)?;
                 packet.write_f32(*flying_speed)?;
                 packet.write_f32(*field_of_view)?;
             }
-            _ => {
-                println!("Unknown packet: {:?}", self);
+            ClientboundPacket::DisconnectLogin { .. } => {
                 unimplemented!()
+            }
+            ClientboundPacket::EncryptionRequest { .. } => {
+                unimplemented!()
+            }
+            ClientboundPacket::SetCompression { .. } => {
+                unimplemented!()
+            }
+            ClientboundPacket::LoginPluginRequest { .. } => {
+                unimplemented!()
+            }
+            ClientboundPacket::PlayerPositionAndLook {
+                x,
+                y,
+                z,
+                yaw,
+                pitch,
+                x_is_relative,
+                y_is_relative,
+                z_is_relative,
+                yaw_is_relative,
+                pitch_is_relative,
+                teleport_id,
+            } => {
+                packet.write_varint(0x35)?;
+                packet.write_f64(*x)?;
+                packet.write_f64(*y)?;
+                packet.write_f64(*z)?;
+                packet.write_f32(*yaw)?;
+                packet.write_f32(*pitch)?;
+                let mut bitmask = 0b00000;
+                if *x_is_relative {
+                    bitmask |= 0b00001
+                }
+                if *y_is_relative {
+                    bitmask |= 0b00001
+                }
+                if *z_is_relative {
+                    bitmask |= 0b00001
+                }
+                if *yaw_is_relative {
+                    bitmask |= 0b00001
+                }
+                if *pitch_is_relative {
+                    bitmask |= 0b00001
+                }
+                packet.write_i8(bitmask)?;
+                packet.write_varint(*teleport_id)?;
             }
         }
         let packet = packet.into_inner();

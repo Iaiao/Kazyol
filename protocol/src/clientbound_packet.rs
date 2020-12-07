@@ -71,6 +71,9 @@ pub enum ClientboundPacket {
         pitch_is_relative: bool,
         teleport_id: VarInt,
     },
+    KeepAlive {
+        id: i64,
+    },
 }
 
 impl ClientboundPacket {
@@ -156,18 +159,6 @@ impl ClientboundPacket {
                 packet.write_f32(*flying_speed)?;
                 packet.write_f32(*field_of_view)?;
             }
-            ClientboundPacket::DisconnectLogin { .. } => {
-                unimplemented!()
-            }
-            ClientboundPacket::EncryptionRequest { .. } => {
-                unimplemented!()
-            }
-            ClientboundPacket::SetCompression { .. } => {
-                unimplemented!()
-            }
-            ClientboundPacket::LoginPluginRequest { .. } => {
-                unimplemented!()
-            }
             ClientboundPacket::PlayerPositionAndLook {
                 x,
                 y,
@@ -205,6 +196,22 @@ impl ClientboundPacket {
                 }
                 packet.write_i8(bitmask)?;
                 packet.write_varint(*teleport_id)?;
+            }
+            ClientboundPacket::KeepAlive { id } => {
+                packet.write_varint(0x20)?;
+                packet.write_i64(*id)?;
+            }
+            ClientboundPacket::DisconnectLogin { .. } => {
+                unimplemented!()
+            }
+            ClientboundPacket::EncryptionRequest { .. } => {
+                unimplemented!()
+            }
+            ClientboundPacket::SetCompression { .. } => {
+                unimplemented!()
+            }
+            ClientboundPacket::LoginPluginRequest { .. } => {
+                unimplemented!()
             }
         }
         let packet = packet.into_inner();

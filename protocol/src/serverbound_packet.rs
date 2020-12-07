@@ -60,6 +60,9 @@ pub enum ServerboundPacket {
     TeleportConfirm {
         teleport_id: VarInt,
     },
+    KeepAlive {
+        id: i64,
+    },
 }
 
 impl ServerboundPacket {
@@ -198,6 +201,12 @@ impl ServerboundPacket {
             (State::Play, 0x0B) => {
                 println!("Got plugin message. Ignoring this for now");
                 Err(Error::new(ErrorKind::Other, "Ignoring plugin message.")) // TODO PluginMessageEvent
+            }
+            (State::Play, 0x10) => {
+                let packet = ServerboundPacket::KeepAlive {
+                    id: buf.read_i64()?,
+                };
+                Ok(packet)
             }
             _ => {
                 #[cfg(debug_assertions)]

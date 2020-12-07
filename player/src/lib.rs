@@ -1,4 +1,5 @@
 use kazyol_lib::event::EventResult::Handled;
+use kazyol_lib::events::tick_event::TickEvent;
 use kazyol_lib::server::Server;
 use kazyol_lib::states::States;
 use kazyol_lib::with_states;
@@ -12,6 +13,7 @@ use protocol::structs::dimension_codec::{
     WorldgenBiome,
 };
 use protocol::structs::{DimensionCodec, GameMode, HandshakeState, Identifier};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Plugin;
 
@@ -19,6 +21,7 @@ pub struct Plugin;
 pub struct Player {
     name: String,
     handle: ConnectionHandle,
+    last_keep_alive: i64,
 }
 
 impl kazyol_lib::plugin::Plugin for Plugin {
@@ -47,6 +50,11 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                             states.get_mut::<Vec<_>>().unwrap().push(Player {
                                 name: name.to_string(),
                                 handle: event.handle.clone(),
+                                last_keep_alive: SystemTime::now()
+                                    .duration_since(UNIX_EPOCH)
+                                    .unwrap()
+                                    .as_millis()
+                                    as i64,
                             })
                         });
                         // TODO encryption
@@ -194,15 +202,36 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                         println!("Player rotation: {}deg {}deg", yaw, pitch);
                     }
                     ServerboundPacket::Animation { hand } => {
-                        println!("Player swung {:?} handd", hand);
+                        println!("Player swung {:?} hand", hand);
                     }
                     ServerboundPacket::TeleportConfirm { teleport_id } => {
                         println!("Teleport confirmed: {}", teleport_id);
+                    }
+                    ServerboundPacket::KeepAlive { .. } => {
+                        println!("Player has sent a keep alive packet");
                     }
                     _ => (),
                 }
                 Handled
             });
+        server.events.get::<TickEvent>().unwrap().add_handler(|_| {
+            with_states!(|states: &mut States| {
+                let id = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis() as i64;
+                let players = states.get_mut::<Vec<Player>>().unwrap();
+                for player in players.iter_mut() {
+                    if player.last_keep_alive + 10000 < id {
+                        player
+                            .handle
+                            .send(ClientboundPacket::KeepAlive { id }, true);
+                        player.last_keep_alive = id;
+                    }
+                }
+            });
+            Handled
+        })
     }
 
     fn get_name(&self) -> String {

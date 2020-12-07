@@ -10,3 +10,4 @@ edition = "2018"
 [dependencies]
 kazyol_lib = { path = "../kazyol_lib" }
 protocol = { path = "../protocol" }
+nbt-parser = { git = "https://github.com/PurpleMyst/nbt-parser" }

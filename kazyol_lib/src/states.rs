@@ -21,7 +21,6 @@ macro_rules! with_states {
     }};
 }
 
-
 impl States {
     pub fn new() -> States {
         States {

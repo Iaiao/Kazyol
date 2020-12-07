@@ -1,5 +1,6 @@
 use crate::bytebuf::{ByteBufRead, VarInt};
 use crate::connection::State;
+use crate::structs::HandshakeState;
 use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
@@ -98,18 +99,11 @@ impl ServerboundPacket {
             }
             (State::Login, 0x00) => {
                 let packet = ServerboundPacket::LoginStart {
-                    name: buf.read_string()?
+                    name: buf.read_string()?,
                 };
                 Ok(packet)
             }
             _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID")),
         }
     }
-}
-
-#[repr(i32)]
-#[derive(Debug, Clone, PartialEq)]
-pub enum HandshakeState {
-    Status = 1,
-    Login = 2,
 }

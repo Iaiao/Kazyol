@@ -1,4 +1,6 @@
+use crate::structs::Identifier;
 use std::any::TypeId;
+use std::convert::TryFrom;
 use std::io::{Error, ErrorKind, Read, Result, Write};
 use uuid::Uuid;
 
@@ -6,6 +8,7 @@ pub type VarInt = i32;
 pub type VarLong = i64;
 
 pub trait ByteBufRead {
+    fn read_bool(&mut self) -> Result<bool>;
     fn read_u8(&mut self) -> Result<u8>;
     fn read_u16(&mut self) -> Result<u16>;
     fn read_u32(&mut self) -> Result<u32>;
@@ -22,10 +25,12 @@ pub trait ByteBufRead {
     fn read_varlong(&mut self) -> Result<VarLong>;
     fn read_string(&mut self) -> Result<String>;
     fn read_uuid(&mut self) -> Result<Uuid>;
+    fn read_identifier(&mut self) -> Result<Identifier>;
     fn read_t<T: 'static>(&mut self) -> Result<T>;
 }
 
 pub trait ByteBufWrite {
+    fn write_bool(&mut self, item: bool) -> Result<()>;
     fn write_u8(&mut self, item: u8) -> Result<()>;
     fn write_u16(&mut self, item: u16) -> Result<()>;
     fn write_u32(&mut self, item: u32) -> Result<()>;
@@ -42,6 +47,7 @@ pub trait ByteBufWrite {
     fn write_varlong(&mut self, item: VarLong) -> Result<()>;
     fn write_string(&mut self, item: &String) -> Result<()>;
     fn write_uuid(&mut self, item: &Uuid) -> Result<()>;
+    fn write_identifier(&mut self, item: &Identifier) -> Result<()>;
     fn write_t<T: 'static>(&mut self, item: T) -> Result<()>;
 }
 
@@ -49,6 +55,14 @@ impl<U> ByteBufRead for U
 where
     U: Read,
 {
+    fn read_bool(&mut self) -> Result<bool> {
+        match self.read_u8()? {
+            0 => Ok(false),
+            1 => Ok(true),
+            _ => Err(Error::new(ErrorKind::InvalidData, "Invalid bool byte")),
+        }
+    }
+
     fn read_u8(&mut self) -> std::io::Result<u8> {
         let mut buf = [0; 1];
         let read = self.read(&mut buf)?;
@@ -267,6 +281,10 @@ where
         Ok(Uuid::from_u128(self.read_u128()?))
     }
 
+    fn read_identifier(&mut self) -> Result<Identifier> {
+        Identifier::try_from(self.read_string()?)
+    }
+
     fn read_t<T: 'static>(&mut self) -> Result<T> {
         let type_id = TypeId::of::<T>();
 
@@ -309,6 +327,10 @@ impl<U> ByteBufWrite for U
 where
     U: Write,
 {
+    fn write_bool(&mut self, item: bool) -> Result<()> {
+        self.write_u8(if item { 1 } else { 0 })
+    }
+
     fn write_u8(&mut self, item: u8) -> Result<()> {
         if let Err(err) = self.write(&item.to_be_bytes()) {
             Err(err)
@@ -458,6 +480,10 @@ where
 
     fn write_uuid(&mut self, item: &Uuid) -> Result<()> {
         self.write_u128(item.as_u128())
+    }
+
+    fn write_identifier(&mut self, item: &Identifier) -> Result<()> {
+        self.write_string(&item.to_string())
     }
 
     fn write_t<T: 'static>(&mut self, item: T) -> Result<()> {
@@ -752,4 +778,4 @@ mod tests {
     }
 }
 
-// TODO test `Uuid` and protocol::structs::*
+// TODO test `Uuid`, `bool` and protocol::structs::*

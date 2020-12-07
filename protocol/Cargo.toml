@@ -10,3 +10,5 @@ edition = "2018"
 kazyol_lib = { path = "../kazyol_lib" }
 rand = "0.7.3"
 uuid = { version = "0.8.1", features = [ "v4" ] }
+hematite-nbt = "0.5.0"
+serde = { version = "1.0.118", features = [ "derive" ] }

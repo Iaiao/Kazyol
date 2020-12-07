@@ -24,8 +24,8 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub(crate) fn receive(&mut self) -> bool {
-        if let Ok(packet) = self.send.try_recv() {
+    pub(crate) fn tick(&mut self) -> bool {
+        while let Ok(packet) = self.send.try_recv() {
             packet
                 .write(&mut self.stream)
                 .expect("Cannot send packet to player");

@@ -6,7 +6,8 @@ use protocol::clientbound_packet::ClientboundPacket;
 use protocol::connection::State;
 use protocol::packet_receive_event::PacketReceiveEvent;
 use protocol::packet_send_event::PacketSendEvent;
-use protocol::serverbound_packet::{HandshakeState, ServerboundPacket};
+use protocol::serverbound_packet::ServerboundPacket;
+use protocol::structs::HandshakeState;
 use std::fs::File;
 use std::io::Read;
 
@@ -52,7 +53,6 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             .get::<PacketReceiveEvent>()
             .expect("Protocol packet receive event not found")
             .add_handler(|event| {
-                dbg!(event.get_packet());
                 match event.get_packet() {
                     ServerboundPacket::Handshake { state, .. } => {
                         if *state == HandshakeState::Status {
@@ -100,11 +100,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             .events
             .get::<PacketSendEvent>()
             .unwrap()
-            .add_handler(|event| {
-                // TODO not working
-                dbg!(event.get_packet().clone().unwrap());
-                Handled
-            })
+            .add_handler(|_event| Handled)
     }
 
     fn get_name(&self) -> String {

@@ -1,6 +1,6 @@
 use crate::bytebuf::{ByteBufRead, VarInt};
 use crate::connection::State;
-use crate::structs::{Hand, HandshakeState};
+use crate::structs::{Hand, HandSide, HandshakeState};
 use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
@@ -33,7 +33,7 @@ pub enum ServerboundPacket {
         chat_mode: VarInt,
         chat_colors: bool,
         skin_parts: u8, // TODO maybe make a struct?
-        main_hand: Hand,
+        main_hand: HandSide,
     },
     PlayerPosition {
         x: f64,
@@ -53,7 +53,10 @@ pub enum ServerboundPacket {
         yaw: f32,
         pitch: f32,
         on_ground: bool,
-    }
+    },
+    Animation {
+        hand: Hand,
+    },
 }
 
 impl ServerboundPacket {
@@ -138,9 +141,9 @@ impl ServerboundPacket {
                     chat_colors: buf.read_bool()?,
                     skin_parts: buf.read_u8()?,
                     main_hand: if buf.read_varint()? == 0 {
-                        Hand::Off
+                        HandSide::Left
                     } else {
-                        Hand::Main
+                        HandSide::Right
                     },
                 };
                 Ok(packet)
@@ -170,6 +173,16 @@ impl ServerboundPacket {
                     yaw: buf.read_f32()?,
                     pitch: buf.read_f32()?,
                     on_ground: buf.read_bool()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x2C) => {
+                let packet = ServerboundPacket::Animation {
+                    hand: if buf.read_varint()? == 0 {
+                        Hand::Main
+                    } else {
+                        Hand::Off
+                    },
                 };
                 Ok(packet)
             }

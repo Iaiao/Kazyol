@@ -193,6 +193,9 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                     ServerboundPacket::PlayerRotation { yaw, pitch, .. } => {
                         println!("Player rotation: {}deg {}deg", yaw, pitch);
                     }
+                    ServerboundPacket::Animation { hand } => {
+                        println!("Player swinged {:?} hand", hand);
+                    }
                     _ => (),
                 }
                 Handled

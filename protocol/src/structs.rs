@@ -151,3 +151,9 @@ pub enum Hand {
     Main,
     Off,
 }
+
+#[derive(Clone, Debug)]
+pub enum HandSide {
+    Left,
+    Right,
+}

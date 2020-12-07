@@ -1,8 +1,8 @@
 use crate::bytebuf::{ByteBufWrite, VarInt};
+use crate::structs::dimension_codec::DimensionElement;
 use crate::structs::{Chat, DimensionCodec, GameMode, Identifier};
 use std::io::{Cursor, Result, Write};
 use uuid::Uuid;
-use crate::structs::dimension_codec::DimensionElement;
 
 #[derive(Clone, Debug)]
 pub enum ClientboundPacket {
@@ -40,7 +40,7 @@ pub enum ClientboundPacket {
         previous_game_mode: i8,
         worlds: Vec<Identifier>,
         dimension_codec: DimensionCodec, // TODO
-        dimension: DimensionElement,              // TODO
+        dimension: DimensionElement,     // TODO
         world_name: Identifier,
         hashed_seed: i64,
         max_players: VarInt,
@@ -49,6 +49,14 @@ pub enum ClientboundPacket {
         enable_respawn_screen: bool,
         is_debug: bool,
         is_flat: bool,
+    },
+    PlayerAbilities {
+        invulnerable: bool,
+        flying: bool,
+        allow_flying: bool,
+        instant_break: bool,
+        flying_speed: f32,
+        field_of_view: f32,
     },
 }
 
@@ -108,6 +116,19 @@ impl ClientboundPacket {
                 packet.write_bool(*enable_respawn_screen)?;
                 packet.write_bool(*is_debug)?;
                 packet.write_bool(*is_flat)?;
+            }
+            ClientboundPacket::PlayerAbilities {
+                invulnerable, flying, allow_flying, instant_break, flying_speed, field_of_view
+            } => {
+                packet.write_varint(0x31)?;
+                let mut bitmask = 0b0000;
+                if *invulnerable { bitmask |= 0b0001 }
+                if *flying { bitmask |= 0b0010 }
+                if *allow_flying { bitmask |= 0b0100 }
+                if *instant_break { bitmask |= 0b1000 }
+                packet.write_i8(bitmask)?;
+                packet.write_f32(*flying_speed)?;
+                packet.write_f32(*field_of_view)?;
             }
             _ => {
                 println!("Unknown packet: {:?}", self);

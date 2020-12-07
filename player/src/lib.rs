@@ -148,6 +148,14 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                             is_debug: false,
                             is_flat: false,
                         });
+                        event.send_packet(ClientboundPacket::PlayerAbilities {
+                            invulnerable: true,
+                            flying: true,
+                            allow_flying: true,
+                            instant_break: true,
+                            flying_speed: 0.05,
+                            field_of_view: 0.1,
+                        })
                     }
                     ServerboundPacket::ClientSettings { locale, .. } => {
                         // Just to check if it works

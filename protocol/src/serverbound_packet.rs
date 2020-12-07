@@ -195,6 +195,10 @@ impl ServerboundPacket {
                 };
                 Ok(packet)
             }
+            (State::Play, 0x0B) => {
+                println!("Got plugin message. Ignoring this for now");
+                Err(Error::new(ErrorKind::Other, "Ignoring plugin message.")) // TODO PluginMessageEvent
+            }
             _ => {
                 #[cfg(debug_assertions)]
                 println!("Unknown packet: {}", packet_id);

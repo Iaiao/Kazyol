@@ -190,6 +190,9 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                             x, y, z, yaw, pitch
                         );
                     }
+                    ServerboundPacket::PlayerRotation { yaw, pitch, .. } => {
+                        println!("Player rotation: {}deg {}deg", yaw, pitch);
+                    }
                     _ => (),
                 }
                 Handled

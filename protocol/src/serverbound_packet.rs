@@ -41,6 +41,14 @@ pub enum ServerboundPacket {
         z: f64,
         on_ground: bool,
     },
+    PlayerPositionAndRotation {
+        x: f64,
+        y: f64,
+        z: f64,
+        yaw: f32,
+        pitch: f32,
+        on_ground: bool,
+    }
 }
 
 impl ServerboundPacket {
@@ -137,6 +145,17 @@ impl ServerboundPacket {
                     x: buf.read_f64()?,
                     y: buf.read_f64()?,
                     z: buf.read_f64()?,
+                    on_ground: buf.read_bool()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x13) => {
+                let packet = ServerboundPacket::PlayerPositionAndRotation {
+                    x: buf.read_f64()?,
+                    y: buf.read_f64()?,
+                    z: buf.read_f64()?,
+                    yaw: buf.read_f32()?,
+                    pitch: buf.read_f32()?,
                     on_ground: buf.read_bool()?,
                 };
                 Ok(packet)

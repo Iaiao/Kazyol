@@ -164,6 +164,11 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                     ServerboundPacket::PlayerPosition { x, y, z, .. } => {
                         println!("Player moved to {} {} {}", x, y, z);
                     }
+                    ServerboundPacket::PlayerPositionAndRotation {
+                        x, y, z, yaw, pitch, ..
+                    } => {
+                        println!("Player moved to {} {} {}, rotation: {}deg, {}deg", x, y, z, yaw, pitch);
+                    }
                     _ => (),
                 }
                 Handled

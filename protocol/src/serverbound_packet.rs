@@ -57,6 +57,9 @@ pub enum ServerboundPacket {
     Animation {
         hand: Hand,
     },
+    TeleportConfirm {
+        teleport_id: VarInt,
+    },
 }
 
 impl ServerboundPacket {
@@ -183,6 +186,12 @@ impl ServerboundPacket {
                     } else {
                         Hand::Off
                     },
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x00) => {
+                let packet = ServerboundPacket::TeleportConfirm {
+                    teleport_id: buf.read_varint()?,
                 };
                 Ok(packet)
             }

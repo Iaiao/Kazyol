@@ -194,7 +194,10 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                         println!("Player rotation: {}deg {}deg", yaw, pitch);
                     }
                     ServerboundPacket::Animation { hand } => {
-                        println!("Player swinged {:?} hand", hand);
+                        println!("Player swung {:?} handd", hand);
+                    }
+                    ServerboundPacket::TeleportConfirm { teleport_id } => {
+                        println!("Teleport confirmed: {}", teleport_id);
                     }
                     _ => (),
                 }

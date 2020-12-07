@@ -145,3 +145,9 @@ pub mod dimension_codec {
         pub block_search_extent: i32,
     }
 }
+
+#[derive(Clone, Debug)]
+pub enum Hand {
+    Main,
+    Off
+}

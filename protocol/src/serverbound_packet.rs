@@ -1,6 +1,6 @@
 use crate::bytebuf::{ByteBufRead, VarInt};
 use crate::connection::State;
-use crate::structs::HandshakeState;
+use crate::structs::{Hand, HandshakeState};
 use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
@@ -26,6 +26,20 @@ pub enum ServerboundPacket {
         message_id: VarInt,
         successful: bool,
         data: Option<Vec<u8>>,
+    },
+    ClientSettings {
+        locale: String,
+        view_distance: i8,
+        chat_mode: VarInt,
+        chat_colors: bool,
+        skin_parts: u8, // TODO maybe make a struct?
+        main_hand: Hand,
+    },
+    PlayerPosition {
+        x: f64,
+        y: f64,
+        z: f64,
+        on_ground: bool,
     },
 }
 
@@ -87,7 +101,7 @@ impl ServerboundPacket {
                 };
                 Ok(packet)
             }
-            (State::Status, 0x00) => {
+            (State::Status, 0x09) => {
                 let packet = ServerboundPacket::Request {};
                 Ok(packet)
             }
@@ -103,7 +117,35 @@ impl ServerboundPacket {
                 };
                 Ok(packet)
             }
-            _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID")),
+            (State::Play, 0x05) => {
+                let packet = ServerboundPacket::ClientSettings {
+                    locale: buf.read_string()?,
+                    view_distance: buf.read_i8()?,
+                    chat_mode: buf.read_varint()?,
+                    chat_colors: buf.read_bool()?,
+                    skin_parts: buf.read_u8()?,
+                    main_hand: if buf.read_varint()? == 0 {
+                        Hand::Off
+                    } else {
+                        Hand::Main
+                    },
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x12) => {
+                let packet = ServerboundPacket::PlayerPosition {
+                    x: buf.read_f64()?,
+                    y: buf.read_f64()?,
+                    z: buf.read_f64()?,
+                    on_ground: buf.read_bool()?,
+                };
+                Ok(packet)
+            }
+            _ => {
+                #[cfg(debug_assertions)]
+                println!("Unknown packet: {}", packet_id);
+                Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID"))
+            }
         }
     }
 }

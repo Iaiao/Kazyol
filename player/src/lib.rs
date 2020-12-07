@@ -149,6 +149,13 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                             is_flat: false,
                         });
                     }
+                    ServerboundPacket::ClientSettings { locale, .. } => {
+                        // Just to check if it works
+                        println!("Player's language: {}", locale);
+                    }
+                    ServerboundPacket::PlayerPosition { x, y, z, .. } => {
+                        println!("Player moved to {} {} {}", x, y, z);
+                    }
                     _ => (),
                 }
                 Handled

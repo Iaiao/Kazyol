@@ -70,11 +70,23 @@ with_states!(|states: &mut States| {
 ```
 
 ## Contributing
-Currently, Kazyol is not even a working prototype, so any contribution will be appreciated.
-If you want to help but don't know what to do, here are few ideas:
-- Core plugins: packets - [server](https://github.com/Iaiao/Kazyol/blob/main/protocol/src/serverbound_packet.rs), [client](https://github.com/Iaiao/Kazyol/blob/main/protocol/src/clientbound_packet.rs), [protocol](https://wiki.vg/Protocol) (Targeting [latest snapshot](https://wiki.vg/Pre-release_protocol)), nbt, world, player, entities, chat, redstone, world generator
-- Additional plugins: Proxy support (BungeeCord, Velocity, etc), BossBar API, Commands API, Queue
-- Plugin manager and repository (something like Cargo/npm/pip, but without 95% of programming stuff, just for users)
-- State storage (saved in a binary file)
-- Scheduler - schedule a task to run on next tick (for async stuff), after 10 ticks or every 20 ticks
-- Any issue in [TO DO](https://github.com/Iaiao/Kazyol/projects/1)
+Currently, Kazyol is a poorly working prototype, the core features
+are working, but there is a lack of plugins. The current TO DO list is:
+- Packets in [protocol](protocol) ([Project #2](https://github.com/Iaiao/Kazyol/projects/2))
+- World
+- Block
+- ItemStack
+- Entities
+- Redstone
+- World Generator
+- Inventories, chests
+After completing these core features, it would be great to make a high level API:
+- Minimize boilerplate
+- BossBar API
+- NBT Api
+- Block/Entity/ItemStack storage, saving data, persistent states, etc
+- Custom entity API / AI
+This list is too long and maybe everything will be done in ~2042.
+
+Before trying to get into the code, you may want to read [Navigation](Navigation.md),
+which contains description and implementation details of each plugin and feature.

@@ -4,7 +4,6 @@ use kazyol_lib::event::EventType;
 use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::server::Server;
 use kazyol_lib::states::States;
-use kazyol_lib::tracking::PLUGINS;
 use kazyol_lib::with_states;
 
 pub struct CustomEvent;

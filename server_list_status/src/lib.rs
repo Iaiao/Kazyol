@@ -1,3 +1,6 @@
+use std::fs::File;
+use std::io::Read;
+
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::server::Server;
 use kazyol_lib::states::States;
@@ -8,13 +11,11 @@ use protocol::packet_receive_event::PacketReceiveEvent;
 use protocol::packet_send_event::PacketSendEvent;
 use protocol::serverbound_packet::ServerboundPacket;
 use protocol::structs::HandshakeState;
-use std::fs::File;
-use std::io::Read;
 
 pub struct Plugin;
 
-const MINECRAFT_VERSION: &'static str = "20w49a";
-const PROTOCOL_VERSION: i32 = 0b01000000000000000000000000001000;
+const MINECRAFT_VERSION: &'static str = "20w51a";
+const PROTOCOL_VERSION: i32 = 0b01000000000000000000000000001001;
 const SERVER_DESCRIPTION: &'static str = "Welcome to §9Kazyol§r!"; // TODO make it configurable
 
 struct ImageBase64(String);

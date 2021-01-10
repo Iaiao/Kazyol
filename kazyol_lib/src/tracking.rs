@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 thread_local! {
     // Event call stack
-    // Last element is currently running plugin
+    // Last element is a currently running plugin
     pub static PLUGINS: RefCell<Vec<String>> = RefCell::new(Vec::new())
 }
 

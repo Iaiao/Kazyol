@@ -5,5 +5,5 @@ members = [
     "kazyol_plugin_loader",
     "protocol",
     "server_list_status",
-    "player"
+    "kazyol_api_method_macro"
 ]

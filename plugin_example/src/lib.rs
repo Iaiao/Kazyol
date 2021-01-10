@@ -96,7 +96,6 @@ struct API;
 impl API {
     #[api_method(env!("CARGO_PKG_NAME"))]
     pub fn api_example() {
-        PLUGINS.with(|p| println!("{:?}", p));
         with_states!(|states: &mut States| {
             let data: &ExampleData = states.get().unwrap();
             println!("{:?}", data)

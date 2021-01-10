@@ -16,6 +16,8 @@ impl kazyol_lib::plugin::Plugin for Plugin { ... }
 ```
 Add it to kazyol's Cargo.toml and plugins.txt [TODO auto-scan them in Cargo.toml]
 
+Note: everything below must be called on main thread. You can use `mpsc` and try_recv on TickEvent to call it
+from other threads.
 ## Events
 Plugin can register its own event and listen to others. For example, TickEvent, DisableEvent, EntityMoveEvent
 ### Listening to events

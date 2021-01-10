@@ -1,5 +1,5 @@
 # Navigation
-Here you can find what is plugin doing, how it is doing this and why.
+Here you can find what is a plugin doing, how it is doing that thing and why.
 I've never seen something like this in other repos, but I think it would
 be very useful for contributors and random persons looking at the code.
 

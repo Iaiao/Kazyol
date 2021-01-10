@@ -1,11 +1,12 @@
-use crate::bytebuf::ByteBufRead;
+use crate::bytebuf::{ByteBufRead, VarInt};
 use crate::connection::State;
+use crate::structs::{Hand, HandSide, HandshakeState};
 use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
 pub enum ServerboundPacket {
     Handshake {
-        protocol: i32,
+        protocol: VarInt,
         server_address: String,
         port: u16,
         state: HandshakeState,
@@ -13,6 +14,54 @@ pub enum ServerboundPacket {
     Request {},
     Ping {
         payload: i64,
+    },
+    LoginStart {
+        name: String,
+    },
+    EncryptionResponse {
+        shared_secret: Vec<u8>,
+        verify_token: Vec<u8>,
+    },
+    LoginPluginResponse {
+        message_id: VarInt,
+        successful: bool,
+        data: Option<Vec<u8>>,
+    },
+    ClientSettings {
+        locale: String,
+        view_distance: i8,
+        chat_mode: VarInt,
+        chat_colors: bool,
+        skin_parts: u8, // TODO maybe make a struct?
+        main_hand: HandSide,
+    },
+    PlayerPosition {
+        x: f64,
+        y: f64,
+        z: f64,
+        on_ground: bool,
+    },
+    PlayerPositionAndRotation {
+        x: f64,
+        y: f64,
+        z: f64,
+        yaw: f32,
+        pitch: f32,
+        on_ground: bool,
+    },
+    PlayerRotation {
+        yaw: f32,
+        pitch: f32,
+        on_ground: bool,
+    },
+    Animation {
+        hand: Hand,
+    },
+    TeleportConfirm {
+        teleport_id: VarInt,
+    },
+    KeepAlive {
+        id: i64,
     },
 }
 
@@ -68,7 +117,7 @@ impl ServerboundPacket {
                             return Err(Error::new(
                                 ErrorKind::InvalidData,
                                 "Unknown handshake state",
-                            ))
+                            ));
                         }
                     },
                 };
@@ -84,14 +133,86 @@ impl ServerboundPacket {
                 };
                 Ok(packet)
             }
-            _ => Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID")),
+            (State::Login, 0x00) => {
+                let packet = ServerboundPacket::LoginStart {
+                    name: buf.read_string()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x05) => {
+                let packet = ServerboundPacket::ClientSettings {
+                    locale: buf.read_string()?,
+                    view_distance: buf.read_i8()?,
+                    chat_mode: buf.read_varint()?,
+                    chat_colors: buf.read_bool()?,
+                    skin_parts: buf.read_u8()?,
+                    main_hand: if buf.read_varint()? == 0 {
+                        HandSide::Left
+                    } else {
+                        HandSide::Right
+                    },
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x12) => {
+                let packet = ServerboundPacket::PlayerPosition {
+                    x: buf.read_f64()?,
+                    y: buf.read_f64()?,
+                    z: buf.read_f64()?,
+                    on_ground: buf.read_bool()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x13) => {
+                let packet = ServerboundPacket::PlayerPositionAndRotation {
+                    x: buf.read_f64()?,
+                    y: buf.read_f64()?,
+                    z: buf.read_f64()?,
+                    yaw: buf.read_f32()?,
+                    pitch: buf.read_f32()?,
+                    on_ground: buf.read_bool()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x14) => {
+                let packet = ServerboundPacket::PlayerRotation {
+                    yaw: buf.read_f32()?,
+                    pitch: buf.read_f32()?,
+                    on_ground: buf.read_bool()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x2C) => {
+                let packet = ServerboundPacket::Animation {
+                    hand: if buf.read_varint()? == 0 {
+                        Hand::Main
+                    } else {
+                        Hand::Off
+                    },
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x00) => {
+                let packet = ServerboundPacket::TeleportConfirm {
+                    teleport_id: buf.read_varint()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x0B) => {
+                println!("Got plugin message. Ignoring this for now");
+                Err(Error::new(ErrorKind::Other, "Ignoring plugin message.")) // TODO PluginMessageEvent
+            }
+            (State::Play, 0x10) => {
+                let packet = ServerboundPacket::KeepAlive {
+                    id: buf.read_i64()?,
+                };
+                Ok(packet)
+            }
+            _ => {
+                #[cfg(debug_assertions)]
+                println!("Unknown packet: {}", packet_id);
+                Err(Error::new(ErrorKind::InvalidData, "Unknown Packet ID"))
+            }
         }
     }
-}
-
-#[repr(i32)]
-#[derive(Debug, Clone, PartialEq)]
-pub enum HandshakeState {
-    Status = 1,
-    Login = 2,
 }

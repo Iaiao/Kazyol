@@ -1,10 +1,11 @@
 pub mod bytebuf;
 pub mod clientbound_packet;
 pub mod connection;
-mod listener;
+pub mod listener;
 pub mod packet_receive_event;
 pub mod packet_send_event;
 pub mod serverbound_packet;
+pub mod structs;
 
 use crate::listener::ListenerSendAction;
 use crate::packet_receive_event::PacketReceiveEvent;
@@ -13,8 +14,9 @@ use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::event::EventType;
 use kazyol_lib::events::tick_event::TickEvent;
 use kazyol_lib::server::Server;
-use kazyol_lib::states::STATES;
+use kazyol_lib::states::States;
 use kazyol_lib::with_server;
+use kazyol_lib::with_states;
 use std::sync::mpsc::Receiver;
 
 pub struct CustomEvent;
@@ -31,8 +33,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
 
     fn on_enable(&self, server: &mut Server) {
         let (tx, rx) = std::sync::mpsc::channel();
-        STATES.with(|states| {
-            let mut states = states.borrow_mut();
+        with_states!(|states: &mut States| {
             states.set(rx);
             states.set(listener::start(tx));
         });
@@ -43,8 +44,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
             .events
             .register_event::<PacketReceiveEvent>(EventType::new());
         server.events.get::<TickEvent>().unwrap().add_handler(|_| {
-            STATES.with(|states| {
-                let states = states.borrow();
+            with_states!(|states: &mut States| {
                 let rx = states.get::<Receiver<ListenerSendAction>>().unwrap();
                 while let Ok(action) = rx.try_recv() {
                     with_server!(|server: &mut Server| {

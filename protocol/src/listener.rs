@@ -39,9 +39,7 @@ pub(crate) fn start(tx: Sender<ListenerSendAction>) {
                 ConnectionHandle(send_tx, receive_set_state_tx, unique_id),
                 receive_rx,
             ));
-            thread::spawn(move || {
-                while connection.receive() {}
-            });
+            thread::spawn(move || while connection.tick() {});
         }
     });
     thread::spawn(move || loop {

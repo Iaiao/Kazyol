@@ -1,3 +1,4 @@
 plugin_example
 protocol
 server_list_status
+player

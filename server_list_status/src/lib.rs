@@ -25,7 +25,6 @@ impl kazyol_lib::plugin::Plugin for Plugin {
     where
         Self: Sized,
     {
-        println!("Hello, World!");
         let icon_file = File::open("server-icon.png");
         let image = if let Ok(mut icon_file) = icon_file {
             let mut bytes = vec![

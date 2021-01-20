@@ -10,7 +10,7 @@ pub fn load_plugins(_: TokenStream) -> TokenStream {
             continue;
         }
         output += &format!("kazyol_lib::tracking::name(\"{}\".to_string());\n", plugin);
-        output += &format!("let p = {}::Plugin::init(); if let Ok(plugin) = p {{ plugins.push(Box::new(plugin)) }} else {{ println!(\"Couldn't load {{}}: {{}}\", \"{}\", p.err().unwrap()); }}\n", plugin, plugin);
+        output += &format!("let p = {}::Plugin::init(); if let Ok(plugin) = p {{ plugins.push(Box::new(plugin)) }} else {{ println!(\"Couldn't load {{}}: {{}}\", \"{}\", p.err().unwrap()); return }}\n", plugin, plugin);
         output += &format!("kazyol_lib::tracking::pop();");
         output += &format!("PluginManager::set_enabled::<{}::Plugin>();", plugin);
     }

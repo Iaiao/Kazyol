@@ -1,3 +1,11 @@
+use std::any::TypeId;
+use std::cell::RefCell;
+use std::cmp::max;
+use std::collections::HashMap;
+use std::time::{Duration, SystemTime};
+use std::error::Error;
+
+use kazyol_api_method_macro::api_method;
 use kazyol_lib::consts::TPS;
 use kazyol_lib::event::EventResult::Handled;
 use kazyol_lib::event::EventType;
@@ -5,13 +13,11 @@ use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::events::tick_event::TickEvent;
 use kazyol_lib::plugin::Plugin;
 use kazyol_lib::server::{Server, ENABLED};
+use kazyol_lib::states::States;
 use kazyol_lib::tracking;
 use kazyol_lib::with_server;
+use kazyol_lib::with_states;
 use kazyol_plugin_loader::load_plugins;
-use std::cell::RefCell;
-use std::cmp::max;
-use std::collections::HashMap;
-use std::time::{Duration, SystemTime};
 
 fn main() {
     println!("Starting Kazyol");
@@ -22,6 +28,7 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
     with_server!(|mut server: &mut Server| {
         let mut plugins: Vec<Box<dyn Plugin>> = Vec::new();
+        PluginManager::init().expect("Couldn't enable Plugin Manager.");
         load_plugins!();
 
         server
@@ -135,4 +142,86 @@ fn dependencies(plugin: String, plugins: &HashMap<String, Vec<String>>) -> usize
         stack.borrow_mut().pop();
     });
     n
+}
+
+struct PluginManager;
+
+impl PluginManager {
+    #[api_method("kazyol")]
+    fn set_enabled<P>()
+    where
+        P: 'static,
+    {
+        with_states!(|states: &mut States| {
+            states
+                .get_mut::<Vec<TypeId>>()
+                .unwrap()
+                .push(TypeId::of::<P>())
+        });
+    }
+
+    #[api_method("kazyol")]
+    fn set_disabled<P>() -> Option<TypeId>
+    where
+        P: 'static,
+    {
+        with_states!(|states: &mut States| {
+            let plugins = states.get_mut::<Vec<TypeId>>().unwrap();
+            Some(plugins.remove(plugins.iter().position(|x| *x == TypeId::of::<P>())?))
+        })
+    }
+
+    #[api_method("kazyol")]
+    fn is_enabled<P>() -> bool
+    where
+        P: 'static,
+    {
+        with_states!(|states: &mut States| {
+            states
+                .get_mut::<Vec<TypeId>>()
+                .unwrap()
+                .contains(&TypeId::of::<P>())
+        })
+    }
+}
+
+impl Plugin for PluginManager {
+    fn init() -> Result<Self, Box<dyn Error>>
+    where
+        Self: Sized,
+    {
+        with_states!(|states: &mut States| { states.set(Vec::<TypeId>::new()) });
+        Ok(PluginManager)
+    }
+
+    fn get_name(&self) -> String {
+        env!("CARGO_PKG_NAME").to_string()
+    }
+
+    fn get_description(&self) -> String {
+        "Init plugin".to_string()
+    }
+
+    fn get_version(&self) -> String {
+        env!("CARGO_PKG_VERSION").to_string()
+    }
+
+    fn get_authors(&self) -> Vec<String> {
+        env!("CARGO_PKG_AUTHORS")
+            .split(":")
+            .map(ToString::to_string)
+            .collect()
+    }
+
+    fn get_homepage(&self) -> Option<String> {
+        None
+    }
+
+    fn get_repository(&self) -> String {
+        "TO DO".to_string()
+    }
+
+    fn get_dependencies(&self) -> Vec<String> {
+        Vec::new()
+    }
 }

@@ -1,7 +1,8 @@
-use crate::tracking;
 use std::any::{Any, TypeId};
 use std::cell::UnsafeCell;
 use std::collections::HashMap;
+
+use crate::tracking;
 
 pub struct States {
     states: HashMap<String, HashMap<TypeId, Box<dyn Any>>>,
@@ -17,7 +18,7 @@ macro_rules! with_states {
         kazyol_lib::states::STATES.with(|states| {
             let states = unsafe { &mut *states.get() };
             $block(states)
-        });
+        })
     }};
 }
 

@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 kazyol_plugin_loader = { path = "../kazyol_plugin_loader" }
 kazyol_lib = { path = "../kazyol_lib" }
+kazyol_api_method_macro = { path = "../kazyol_api_method_macro" }
 plugin_example = { path = "../plugin_example" }
 protocol = { path = "../protocol" }
 server_list_status = { path = "../server_list_status" }

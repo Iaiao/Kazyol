@@ -113,6 +113,7 @@ name = "kazyol"
 version = "0.1.0"
 dependencies = [
  "ctrlc",
+ "kazyol_api_method_macro",
  "kazyol_lib",
  "kazyol_plugin_loader",
  "player",

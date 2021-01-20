@@ -5,6 +5,7 @@ use kazyol_lib::events::disable_event::DisableEvent;
 use kazyol_lib::server::Server;
 use kazyol_lib::states::States;
 use kazyol_lib::with_states;
+use std::error::Error;
 
 pub struct CustomEvent;
 
@@ -17,12 +18,12 @@ pub struct ExampleData {
 }
 
 impl kazyol_lib::plugin::Plugin for Plugin {
-    fn init() -> Box<Self>
+    fn init() -> Result<Self, Box<dyn Error>>
     where
         Self: Sized,
     {
         println!("Hello, World!");
-        Box::new(Plugin)
+        Ok(Plugin)
     }
 
     fn on_enable(&self, server: &mut Server) {

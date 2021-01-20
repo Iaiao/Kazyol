@@ -1,7 +1,8 @@
 use crate::server::Server;
+use std::error::Error;
 
 pub trait Plugin {
-    fn init() -> Box<Self>
+    fn init() -> Result<Self, Box<dyn Error>>
     where
         Self: Sized;
     fn on_enable(&self, _server: &mut Server) {}

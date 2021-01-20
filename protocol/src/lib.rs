@@ -18,17 +18,18 @@ use kazyol_lib::states::States;
 use kazyol_lib::with_server;
 use kazyol_lib::with_states;
 use std::sync::mpsc::Receiver;
+use std::error::Error;
 
 pub struct CustomEvent;
 
 pub struct Plugin;
 
 impl kazyol_lib::plugin::Plugin for Plugin {
-    fn init() -> Box<Self>
+    fn init() -> Result<Self, Box<dyn Error>>
     where
         Self: Sized,
     {
-        Box::new(Plugin)
+        Ok(Plugin)
     }
 
     fn on_enable(&self, server: &mut Server) {

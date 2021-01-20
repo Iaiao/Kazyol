@@ -11,6 +11,7 @@ use protocol::packet_receive_event::PacketReceiveEvent;
 use protocol::packet_send_event::PacketSendEvent;
 use protocol::serverbound_packet::ServerboundPacket;
 use protocol::structs::HandshakeState;
+use std::error::Error;
 
 pub struct Plugin;
 
@@ -21,7 +22,7 @@ const SERVER_DESCRIPTION: &'static str = "Welcome to §9Kazyol§r!"; // TODO mak
 struct ImageBase64(String);
 
 impl kazyol_lib::plugin::Plugin for Plugin {
-    fn init() -> Box<Self>
+    fn init() -> Result<Self, Box<dyn Error>>
     where
         Self: Sized,
     {
@@ -44,7 +45,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
         with_states!(|states: &mut States| {
             states.set(ImageBase64(image));
         });
-        Box::new(Plugin)
+        Ok(Plugin)
     }
 
     fn on_enable(&self, server: &mut Server) {

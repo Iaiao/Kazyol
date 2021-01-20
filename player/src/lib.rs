@@ -14,6 +14,7 @@ use protocol::structs::dimension_codec::{
 };
 use protocol::structs::{DimensionCodec, GameMode, HandshakeState, Identifier};
 use std::time::{SystemTime, UNIX_EPOCH};
+use std::error::Error;
 
 pub struct Plugin;
 
@@ -25,11 +26,11 @@ pub struct Player {
 }
 
 impl kazyol_lib::plugin::Plugin for Plugin {
-    fn init() -> Box<Self>
+    fn init() -> Result<Self, Box<dyn Error>>
     where
         Self: Sized,
     {
-        Box::new(Plugin)
+        Ok(Plugin)
     }
 
     fn on_enable(&self, server: &mut Server) {

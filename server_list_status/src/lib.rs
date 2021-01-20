@@ -14,8 +14,8 @@ use protocol::structs::HandshakeState;
 
 pub struct Plugin;
 
-const MINECRAFT_VERSION: &'static str = "20w51a";
-const PROTOCOL_VERSION: i32 = 0b01000000000000000000000000000000 + 9;
+const MINECRAFT_VERSION: &'static str = "21w03a";
+const PROTOCOL_VERSION: i32 = 0b01000000000000000000000000000000 + 11;
 const SERVER_DESCRIPTION: &'static str = "Welcome to §9Kazyol§r!"; // TODO make it configurable
 
 struct ImageBase64(String);

@@ -11,4 +11,4 @@ kazyol_lib = { path = "../kazyol_lib" }
 rand = "0.8.2"
 uuid = { version = "0.8.2", features = [ "v4" ] }
 hematite-nbt = "0.5.0"
-serde = { version = "1.0.118", features = [ "derive" ] }
+serde = { version = "1.0.120", features = [ "derive" ] }

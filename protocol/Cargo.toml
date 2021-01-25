@@ -10,5 +10,5 @@ edition = "2018"
 kazyol_lib = { path = "../kazyol_lib" }
 rand = "0.8.2"
 uuid = { version = "0.8.2", features = [ "v4" ] }
-hematite-nbt = "0.5.0"
+hematite-nbt = { git = "https://github.com/PistonDevelopers/hematite_nbt" } # use git until they make a release with #60
 serde = { version = "1.0.118", features = [ "derive" ] }

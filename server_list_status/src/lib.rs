@@ -15,9 +15,9 @@ use std::error::Error;
 
 pub struct Plugin;
 
-const MINECRAFT_VERSION: &'static str = "21w03a";
+const MINECRAFT_VERSION: &str = "21w03a";
 const PROTOCOL_VERSION: i32 = 0b01000000000000000000000000000000 + 11;
-const SERVER_DESCRIPTION: &'static str = "Welcome to §9Kazyol§r!"; // TODO make it configurable
+const SERVER_DESCRIPTION: &str = "Welcome to §9Kazyol§r!"; // TODO make it configurable
 
 struct ImageBase64(String);
 
@@ -36,7 +36,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
                     .len() as usize
             ];
             icon_file
-                .read(&mut bytes)
+                .read_exact(&mut bytes)
                 .expect("Cannot read server-icon.png");
             base64::encode(bytes)
         } else {
@@ -118,7 +118,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
 
     fn get_authors(&self) -> Vec<String> {
         env!("CARGO_PKG_AUTHORS")
-            .split(":")
+            .split(':')
             .map(ToString::to_string)
             .collect()
     }

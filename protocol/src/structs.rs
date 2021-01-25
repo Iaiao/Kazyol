@@ -47,7 +47,7 @@ impl TryFrom<String> for Identifier {
     type Error = std::io::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        let arr: Vec<&str> = value.split(":").collect();
+        let arr: Vec<&str> = value.split(':').collect();
         if let [namespace, name] = arr.as_slice() {
             Ok(Identifier::new(*namespace, *name))
         } else {

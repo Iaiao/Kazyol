@@ -35,8 +35,8 @@ impl kazyol_lib::plugin::Plugin for Plugin {
     fn on_enable(&self, server: &mut Server) {
         let (tx, rx) = std::sync::mpsc::channel();
         with_states!(|states: &mut States| {
+            listener::start(tx);
             states.set(rx);
-            states.set(listener::start(tx));
         });
         server
             .events
@@ -93,7 +93,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
 
     fn get_authors(&self) -> Vec<String> {
         env!("CARGO_PKG_AUTHORS")
-            .split(":")
+            .split(':')
             .map(ToString::to_string)
             .collect()
     }

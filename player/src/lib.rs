@@ -249,7 +249,7 @@ impl kazyol_lib::plugin::Plugin for Plugin {
 
     fn get_authors(&self) -> Vec<String> {
         env!("CARGO_PKG_AUTHORS")
-            .split(":")
+            .split(':')
             .map(ToString::to_string)
             .collect()
     }

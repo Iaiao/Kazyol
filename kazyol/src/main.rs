@@ -2,8 +2,8 @@ use std::any::TypeId;
 use std::cell::RefCell;
 use std::cmp::max;
 use std::collections::HashMap;
-use std::time::{Duration, SystemTime};
 use std::error::Error;
+use std::time::{Duration, SystemTime};
 
 use kazyol_api_method_macro::api_method;
 use kazyol_lib::consts::TPS;
@@ -28,7 +28,9 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
     with_server!(|mut server: &mut Server| {
         let mut plugins: Vec<Box<dyn Plugin>> = Vec::new();
+        tracking::name("kazyol".to_string());
         PluginManager::init().expect("Couldn't enable Plugin Manager.");
+        tracking::pop();
         load_plugins!();
 
         server
@@ -122,22 +124,18 @@ fn dependencies(plugin: String, plugins: &HashMap<String, Vec<String>>) -> usize
     DEPENDENCY_STACK.with(|stack| {
         stack.borrow_mut().push(plugin.clone());
     });
-    let n = plugins.get(&plugin.clone()).unwrap().len()
-        + plugins
-            .get(&plugin.clone())
-            .unwrap()
-            .iter()
-            .fold(0, |val, plugin| {
-                DEPENDENCY_STACK.with(|stack| {
-                    if stack.borrow().contains(plugin) {
-                        panic!(
-                            "Stack overflow: Infinite dependency recursion with plugins {:?}",
-                            stack
-                        );
-                    }
-                });
-                val + dependencies(plugin.clone(), plugins)
+    let n = plugins.get(&plugin).unwrap().len()
+        + plugins.get(&plugin).unwrap().iter().fold(0, |val, plugin| {
+            DEPENDENCY_STACK.with(|stack| {
+                if stack.borrow().contains(plugin) {
+                    panic!(
+                        "Stack overflow: Infinite dependency recursion with plugins {:?}",
+                        stack
+                    );
+                }
             });
+            val + dependencies(plugin.clone(), plugins)
+        });
     DEPENDENCY_STACK.with(|stack| {
         stack.borrow_mut().pop();
     });
@@ -208,7 +206,7 @@ impl Plugin for PluginManager {
 
     fn get_authors(&self) -> Vec<String> {
         env!("CARGO_PKG_AUTHORS")
-            .split(":")
+            .split(':')
             .map(ToString::to_string)
             .collect()
     }

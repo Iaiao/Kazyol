@@ -216,7 +216,7 @@ impl ClientboundPacket {
         }
         let packet = packet.into_inner();
         write.write_varint(packet.len() as i32)?;
-        write.write(&packet)?;
+        write.write_all(&packet)?;
         Ok(())
     }
 }

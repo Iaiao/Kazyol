@@ -45,7 +45,7 @@ pub trait ByteBufWrite {
     fn write_f64(&mut self, item: f64) -> Result<()>;
     fn write_varint(&mut self, item: VarInt) -> Result<()>;
     fn write_varlong(&mut self, item: VarLong) -> Result<()>;
-    fn write_string(&mut self, item: &String) -> Result<()>;
+    fn write_string(&mut self, item: &str) -> Result<()>;
     fn write_uuid(&mut self, item: &Uuid) -> Result<()>;
     fn write_identifier(&mut self, item: &Identifier) -> Result<()>;
     fn write_t<T: 'static>(&mut self, item: T) -> Result<()>;
@@ -467,7 +467,7 @@ where
         }
     }
 
-    fn write_string(&mut self, item: &String) -> Result<()> {
+    fn write_string(&mut self, item: &str) -> Result<()> {
         let bytes = item.as_bytes();
         if let Err(err) = self.write_varint(bytes.len() as i32) {
             Err(err)

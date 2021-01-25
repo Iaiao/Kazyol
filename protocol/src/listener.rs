@@ -74,7 +74,7 @@ impl ConnectionHandle {
         &self.1
     }
     pub fn get_uuid(&self) -> Uuid {
-        self.2.clone()
+        self.2
     }
     pub fn send(&self, packet: ClientboundPacket, event: bool) {
         let mut packet = Some(packet);

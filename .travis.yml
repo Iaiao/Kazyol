@@ -8,3 +8,8 @@ os:
   - windows
   - osx
 dist: focal
+before_script:
+  - rustup component add clippy
+script:
+  - cargo clippy -- -D warnings
+  - cargo test

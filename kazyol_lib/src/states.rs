@@ -72,3 +72,9 @@ impl States {
         }
     }
 }
+
+impl Default for States {
+    fn default() -> Self {
+        Self::new()
+    }
+}

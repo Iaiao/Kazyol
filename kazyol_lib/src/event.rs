@@ -3,15 +3,18 @@ use crate::tracking;
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 
+pub type EventHandler<E> = fn(&mut E) -> EventResult;
+
 // TODO documentation
 // Example usage:
 // events.register_event(EventType::<Box<Event>>::new());
 pub struct EventType<E> {
-    handlers: HashMap<String, Vec<fn(&mut E) -> EventResult>>,
+    handlers: HashMap<String, Vec<EventHandler<E>>>,
 }
 
 impl<E> EventType<E> {
     // Creates a new event type
+    #[allow(clippy::new_without_default)]
     pub fn new() -> EventType<E> {
         EventType {
             handlers: HashMap::new(),
@@ -19,7 +22,7 @@ impl<E> EventType<E> {
     }
 
     // Registers an event handler
-    pub fn add_handler(&mut self, handler: fn(&mut E) -> EventResult) {
+    pub fn add_handler(&mut self, handler: EventHandler<E>) {
         tracking::PLUGINS.with(|stack| {
             self.get_plugin_handlers(stack.borrow().last().unwrap().clone())
                 .push(handler);
@@ -38,7 +41,7 @@ impl<E> EventType<E> {
         EventDispatchResult::from(results)
     }
 
-    fn get_plugin_handlers(&mut self, plugin: String) -> &mut Vec<fn(&mut E) -> EventResult> {
+    fn get_plugin_handlers(&mut self, plugin: String) -> &mut Vec<EventHandler<E>> {
         if self.handlers.contains_key(&plugin) {
             self.handlers.get_mut(&plugin).unwrap()
         } else {
@@ -70,6 +73,12 @@ impl Events {
     }
     pub fn register_event<E: 'static>(&mut self, event_type: EventType<E>) {
         self.events.insert(TypeId::of::<E>(), Box::new(event_type));
+    }
+}
+
+impl Default for Events {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

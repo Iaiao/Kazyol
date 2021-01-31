@@ -13,12 +13,12 @@ pub enum HandshakeState {
     Login = 2,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Chat {
     // TODO
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Identifier {
     namespace: String,
     name: String,
@@ -60,7 +60,7 @@ impl TryFrom<String> for Identifier {
 }
 
 #[repr(u8)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GameMode {
     Survival = 0,
     Creative = 1,
@@ -68,7 +68,7 @@ pub enum GameMode {
     Spectator = 3,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct DimensionCodec {
     #[serde(rename = "minecraft:dimension_type")]
     pub dimension_type: DimensionType,
@@ -78,18 +78,18 @@ pub struct DimensionCodec {
 
 pub mod dimension_codec {
     use serde::Serialize;
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct DimensionType {
         pub r#type: String,
         pub value: Vec<Dimension>,
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct Dimension {
         pub name: String,
         pub id: i32,
         pub element: DimensionElement,
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct DimensionElement {
         pub piglin_safe: bool,
         pub natural: bool,
@@ -108,18 +108,18 @@ pub mod dimension_codec {
         pub has_ceiling: bool,
         pub fixed_time: bool, // TODO Option<i32> but serialize as `false` if None
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct WorldgenBiome {
         pub r#type: String,
         pub value: Vec<Biome>,
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct Biome {
         pub name: String,
         pub id: i32,
         pub element: BiomeElement,
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct BiomeElement {
         pub precipitation: String,
         pub effects: Effects,
@@ -129,7 +129,7 @@ pub mod dimension_codec {
         pub downfall: f32,
         pub category: String,
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct Effects {
         pub sky_color: i32,
         pub water_fog_color: i32,
@@ -137,7 +137,7 @@ pub mod dimension_codec {
         pub water_color: i32,
         pub mood_sound: MoodSound,
     }
-    #[derive(Serialize, Clone, Debug)]
+    #[derive(Serialize, Clone, Debug, PartialEq)]
     pub struct MoodSound {
         pub tick_delay: i32,
         pub offset: f32,

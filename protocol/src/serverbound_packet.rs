@@ -1,7 +1,8 @@
+use std::io::{Cursor, Error, ErrorKind, Read};
+
 use crate::bytebuf::{ByteBufRead, VarInt};
 use crate::connection::State;
 use crate::structs::{Hand, HandSide, HandshakeState};
-use std::io::{Cursor, Error, ErrorKind, Read};
 
 #[derive(Debug, Clone)]
 pub enum ServerboundPacket {
@@ -62,6 +63,9 @@ pub enum ServerboundPacket {
     },
     KeepAlive {
         id: i64,
+    },
+    Chat {
+        message: String,
     },
 }
 
@@ -205,6 +209,12 @@ impl ServerboundPacket {
             (State::Play, 0x10) => {
                 let packet = ServerboundPacket::KeepAlive {
                     id: buf.read_i64()?,
+                };
+                Ok(packet)
+            }
+            (State::Play, 0x03) => {
+                let packet = ServerboundPacket::Chat {
+                    message: buf.read_string()?,
                 };
                 Ok(packet)
             }

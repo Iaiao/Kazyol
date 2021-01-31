@@ -4,7 +4,7 @@ use crate::structs::{Chat, DimensionCodec, GameMode, Identifier};
 use std::io::{Cursor, Result, Write};
 use uuid::Uuid;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ClientboundPacket {
     Response {
         json: String,

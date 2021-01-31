@@ -19,6 +19,7 @@ pub enum ListenerSendAction {
 pub(crate) fn start(tx: Sender<ListenerSendAction>) {
     let connections = Arc::new(Mutex::new(Vec::new()));
     let connections2 = connections.clone();
+    let uuids = Vec::new(); // TODO get them from Mojang API
     thread::spawn(move || {
         let listener = TcpListener::bind("0.0.0.0:25565").unwrap();
         while let Ok((stream, address)) = listener.accept() {
@@ -26,7 +27,10 @@ pub(crate) fn start(tx: Sender<ListenerSendAction>) {
             let (send_tx, send_rx) = channel();
             let (receive_tx, receive_rx) = channel();
             let (receive_set_state_tx, receive_set_state_rx) = channel();
-            let unique_id = Uuid::new_v4();
+            let mut unique_id = Uuid::new_v4();
+            while uuids.contains(&unique_id) {
+                unique_id = Uuid::new_v4();
+            }
             let mut connection = Connection {
                 send: send_rx,
                 receive: receive_tx,

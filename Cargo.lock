@@ -98,8 +98,8 @@ dependencies = [
 
 [[package]]
 name = "hematite-nbt"
-version = "0.5.0"
-source = "git+https://github.com/PistonDevelopers/hematite_nbt#0ea396f476e9eb4d536256f377f49191a576939b"
+version = "0.5.1"
+source = "git+https://github.com/PistonDevelopers/hematite_nbt#dccdb7601021d8addf732b6b9a8af547d8a7d654"
 dependencies = [
  "byteorder",
  "cesu8",

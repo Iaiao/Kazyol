@@ -14,4 +14,4 @@ plugin_example = { path = "../plugin_example" }
 protocol = { path = "../protocol" }
 server_list_status = { path = "../server_list_status" }
 player = { path = "../player" }
-ctrlc = "3.1.7"
+ctrlc = "3.1.9"
